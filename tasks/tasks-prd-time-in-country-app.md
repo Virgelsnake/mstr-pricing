@@ -43,8 +43,8 @@
   - [x] 4.2 Fetch all jurisdiction and allocated day data from the backend.
   - [x] 4.3 For each jurisdiction, implement a progress bar to visualize day usage.
 
-- [ ] 5.0 Finalize UI/UX and Deploy
+- [x] 5.0 Finalize UI/UX and Deploy
   - [x] 5.1 Apply consistent styling to all components for a clean and intuitive UI.
   - [x] 5.2 Ensure the application is responsive.
-  - [ ] 5.3 Write basic unit tests for critical components and API logic.
-  - [ ] 5.4 Prepare the application for deployment.
+  - [x] 5.3 Write basic unit tests for critical components and API logic.
+  - [x] 5.4 Prepare the application for deployment.

@@ -82,7 +82,7 @@ exports.deleteJurisdiction = async (req, res) => {
       return res.status(401).json({ msg: 'Not authorized' });
     }
 
-    await Jurisdiction.findByIdAndRemove(req.params.id);
+    await Jurisdiction.findByIdAndDelete(req.params.id);
 
     res.json({ msg: 'Jurisdiction removed' });
   } catch (err) {

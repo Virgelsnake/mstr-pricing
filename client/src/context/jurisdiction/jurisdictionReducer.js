@@ -7,7 +7,7 @@ import {
   SET_DRAGGED_JURISDICTION,
 } from '../types';
 
-export default (state, action) => {
+const jurisdictionReducer = (state, action) => {
   switch (action.type) {
     case GET_JURISDICTIONS:
       return {
@@ -51,3 +51,5 @@ export default (state, action) => {
       return state;
   }
 };
+
+export default jurisdictionReducer;

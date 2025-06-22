@@ -4,7 +4,7 @@ import {
   ALLOCATED_DAY_ERROR,
 } from '../types';
 
-export default (state, action) => {
+const allocatedDayReducer = (state, action) => {
   switch (action.type) {
     case GET_ALLOCATED_DAYS:
       return {
@@ -27,3 +27,5 @@ export default (state, action) => {
       return state;
   }
 };
+
+export default allocatedDayReducer;

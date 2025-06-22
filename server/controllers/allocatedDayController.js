@@ -29,7 +29,7 @@ exports.allocateDay = async (req, res) => {
       date,
     });
 
-    await allocatedDay.save();
+    allocatedDay = await allocatedDay.save();
     allocatedDay = await allocatedDay.populate('jurisdiction', 'name');
     res.json(allocatedDay);
   } catch (err) {
