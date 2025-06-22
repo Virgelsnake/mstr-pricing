@@ -17,6 +17,7 @@ const MyCalendar = () => {
   const { allocatedDays, getAllocatedDays, addAllocatedDay } = allocatedDayContext;
 
   const [events, setEvents] = useState([]);
+  const [view, setView] = useState('month');
 
   useEffect(() => {
     getAllocatedDays();
@@ -64,6 +65,12 @@ const MyCalendar = () => {
 
   return (
     <div>
+      <div className="rbc-toolbar">
+        <span className="rbc-btn-group">
+          <button type="button" onClick={() => setView('month')}>Month</button>
+          <button type="button" onClick={() => setView('year')}>Year</button>
+        </span>
+      </div>
       <DnDCalendar
         localizer={localizer}
         events={events}
@@ -74,6 +81,8 @@ const MyCalendar = () => {
         style={{ height: 500 }}
         resizable
         selectable
+        view={view}
+        onView={setView}
       />
     </div>
   );

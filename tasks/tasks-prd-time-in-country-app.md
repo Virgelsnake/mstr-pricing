@@ -35,7 +35,7 @@
   - [x] 3.2 Create a `DayToken` component representing a single day for a jurisdiction.
   - [x] 3.3 Implement the main `Calendar` component to display events.
   - [x] 3.4 Enable dragging `DayToken`s and dropping them onto the calendar.
-  - [ ] 3.5 Save the allocated days to the database via an API call.
+  - [x] 3.5 Save the allocated days to the database via an API call.
   - [ ] 3.6 Add controls to switch between monthly and yearly calendar views.
 
 - [ ] 4.0 Create the Dashboard and Tracking View
