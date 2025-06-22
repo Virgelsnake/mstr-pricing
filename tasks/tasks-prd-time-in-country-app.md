@@ -25,10 +25,10 @@
   - [x] 1.5 Set up the React frontend using Create React App.
 
 - [ ] 2.0 Implement Jurisdiction Management
-  - [ ] 2.1 Create CRUD API endpoints for jurisdictions.
-  - [ ] 2.2 Build a React component (`JurisdictionForm`) for creating and editing jurisdictions.
-  - [ ] 2.3 Build a React component (`JurisdictionList`) to display all user jurisdictions.
-  - [ ] 2.4 Connect the frontend components to the backend API to manage jurisdictions.
+  - [x] 2.1 Create CRUD API endpoints for jurisdictions.
+  - [x] 2.2 Build a React component (`JurisdictionForm`) for creating and editing jurisdictions.
+  - [x] 2.3 Build a React component (`JurisdictionList`) to display all user jurisdictions.
+  - [x] 2.4 Connect the frontend components to the backend API to manage jurisdictions.
 
 - [ ] 3.0 Build the Calendar and Day Allocation UI
   - [ ] 3.1 Integrate a calendar library (`react-big-calendar`) and a drag-and-drop library (`react-dnd`).
