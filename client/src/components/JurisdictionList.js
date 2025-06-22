@@ -2,10 +2,44 @@ import React, { useContext, useEffect } from 'react';
 import JurisdictionContext from '../context/jurisdiction/jurisdictionContext';
 import DayToken from './DayToken';
 
+const JurisdictionListItem = ({ jurisdiction }) => {
+  const jurisdictionContext = useContext(JurisdictionContext);
+  const { deleteJurisdiction, setCurrent, clearCurrent } = jurisdictionContext;
+
+  const { _id, name, daysAllowed } = jurisdiction;
+
+  const onDelete = () => {
+    deleteJurisdiction(_id);
+    clearCurrent();
+  };
+
+  return (
+    <div className='card'>
+      <h3 className='text-primary text-left'>
+        {name}{' '}
+        <span style={{ float: 'right' }}>
+          <DayToken jurisdiction={jurisdiction} />
+        </span>
+      </h3>
+      <p>Days Allowed: {daysAllowed}</p>
+      <p>
+        <button
+          className='btn btn-dark btn-sm'
+          onClick={() => setCurrent(jurisdiction)}
+        >
+          Edit
+        </button>
+        <button className='btn btn-danger btn-sm' onClick={onDelete}>
+          Delete
+        </button>
+      </p>
+    </div>
+  );
+};
+
 const JurisdictionList = () => {
   const jurisdictionContext = useContext(JurisdictionContext);
-
-  const { jurisdictions, getJurisdictions, loading, deleteJurisdiction } = jurisdictionContext;
+  const { jurisdictions, getJurisdictions, loading } = jurisdictionContext;
 
   useEffect(() => {
     getJurisdictions();
@@ -18,25 +52,12 @@ const JurisdictionList = () => {
 
   return (
     <div>
-      <h2 className='text-primary'>My Jurisdictions</h2>
-      {jurisdictions.length > 0 && !loading ? (
-        jurisdictions.map((jurisdiction) => (
-          <div key={jurisdiction._id}>
-            <div className='card bg-light'>
-              <h3 className='text-primary text-left'>
-                {jurisdiction.name}{' '}
-                <span style={{ float: 'right' }} className='badge badge-primary'>
-                  Days Allowed: {jurisdiction.daysAllowed}
-                </span>
-              </h3>
-              <button className='btn btn-dark btn-sm'>Edit</button>
-              <button className='btn btn-danger btn-sm' onClick={() => deleteJurisdiction(jurisdiction._id)}>Delete</button>
-            </div>
-            <DayToken jurisdiction={jurisdiction} />
-          </div>
-        ))
-      ) : (
+      {loading ? (
         <p>Loading...</p>
+      ) : (
+        jurisdictions.map((jurisdiction) => (
+          <JurisdictionListItem key={jurisdiction._id} jurisdiction={jurisdiction} />
+        ))
       )}
     </div>
   );

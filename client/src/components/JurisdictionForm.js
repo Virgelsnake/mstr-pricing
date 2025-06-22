@@ -1,9 +1,21 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import JurisdictionContext from '../context/jurisdiction/jurisdictionContext';
 
 const JurisdictionForm = () => {
   const jurisdictionContext = useContext(JurisdictionContext);
-  const { addJurisdiction } = jurisdictionContext;
+  const { addJurisdiction, updateJurisdiction, clearCurrent, current } =
+    jurisdictionContext;
+
+  useEffect(() => {
+    if (current !== null) {
+      setJurisdiction(current);
+    } else {
+      setJurisdiction({
+        name: '',
+        daysAllowed: '',
+      });
+    }
+  }, [jurisdictionContext, current]);
 
   const [jurisdiction, setJurisdiction] = useState({
     name: '',
@@ -17,40 +29,55 @@ const JurisdictionForm = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    addJurisdiction(jurisdiction);
-    setJurisdiction({
-      name: '',
-      daysAllowed: '',
-    });
+    if (current === null) {
+      addJurisdiction(jurisdiction);
+    } else {
+      updateJurisdiction(jurisdiction);
+    }
+    clearAll();
+  };
+
+  const clearAll = () => {
+    clearCurrent();
   };
 
   return (
-    <form onSubmit={onSubmit}>
-      <h2 className='text-primary'>Add Jurisdiction</h2>
-      <input
-        type='text'
-        placeholder='Name'
-        name='name'
-        value={name}
-        onChange={onChange}
-        required
-      />
-      <input
-        type='number'
-        placeholder='Days Allowed'
-        name='daysAllowed'
-        value={daysAllowed}
-        onChange={onChange}
-        required
-      />
-      <div>
+    <div className='card'>
+      <form onSubmit={onSubmit}>
+        <h2>{current ? 'Edit Jurisdiction' : 'Add Jurisdiction'}</h2>
         <input
-          type='submit'
-          value='Add Jurisdiction'
-          className='btn btn-primary btn-block'
+          type='text'
+          placeholder='Jurisdiction Name'
+          name='name'
+          value={name}
+          onChange={onChange}
+          required
         />
-      </div>
-    </form>
+        <input
+          type='number'
+          placeholder='Days Allowed'
+          name='daysAllowed'
+          value={daysAllowed}
+          onChange={onChange}
+          required
+        />
+        <div>
+          <input
+            type='submit'
+            value={current ? 'Update Jurisdiction' : 'Add Jurisdiction'}
+            className='btn btn-primary'
+            style={{ width: '100%', marginBottom: '10px' }}
+          />
+        </div>
+        {current && (
+          <div>
+            <button className='btn' style={{ width: '100%' }} onClick={clearAll}>
+              Clear
+            </button>
+          </div>
+        )}
+      </form>
+    </div>
   );
 };
 

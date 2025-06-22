@@ -38,10 +38,10 @@
   - [x] 3.5 Save the allocated days to the database via an API call.
   - [x] 3.6 Add controls to switch between monthly and yearly calendar views.
 
-- [ ] 4.0 Create the Dashboard and Tracking View
+- [x] 4.0 Create the Dashboard and Tracking View
   - [x] 4.1 Create the main `Dashboard` component.
   - [x] 4.2 Fetch all jurisdiction and allocated day data from the backend.
-  - [ ] 4.3 For each jurisdiction, implement a progress bar to visualize day usage.
+  - [x] 4.3 For each jurisdiction, implement a progress bar to visualize day usage.
 
 - [ ] 5.0 Finalize UI/UX and Deploy
   - [ ] 5.1 Apply consistent styling to all components for a clean and intuitive UI.

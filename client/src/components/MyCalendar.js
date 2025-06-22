@@ -63,14 +63,47 @@ const MyCalendar = () => {
     [addAllocatedDay, draggedJurisdiction]
   );
 
-  return (
-    <div>
-      <div className="rbc-toolbar">
-        <span className="rbc-btn-group">
-          <button type="button" onClick={() => setView('month')}>Month</button>
-          <button type="button" onClick={() => setView('year')}>Year</button>
+  const CustomToolbar = (toolbar) => {
+    const goToBack = () => {
+      toolbar.onNavigate('PREV');
+    };
+
+    const goToNext = () => {
+      toolbar.onNavigate('NEXT');
+    };
+
+    const goToCurrent = () => {
+      toolbar.onNavigate('TODAY');
+    };
+
+    const label = () => {
+      const date = moment(toolbar.date);
+      return (
+        <span>
+          <b>{date.format('MMMM')}</b>
+          <span> {date.format('YYYY')}</span>
+        </span>
+      );
+    };
+
+    return (
+      <div className='rbc-toolbar'>
+        <span className='rbc-btn-group'>
+          <button type='button' className='btn' onClick={goToBack}>Back</button>
+          <button type='button' className='btn' onClick={goToCurrent}>Today</button>
+          <button type='button' className='btn' onClick={goToNext}>Next</button>
+        </span>
+        <span className='rbc-toolbar-label'><label>{label()}</label></span>
+        <span className='rbc-btn-group'>
+          <button className='btn' type='button' onClick={() => setView('month')}>Month</button>
+          <button className='btn' type='button' onClick={() => setView('year')}>Year</button>
         </span>
       </div>
+    );
+  };
+
+  return (
+    <div className='card'>
       <DnDCalendar
         localizer={localizer}
         events={events}
@@ -83,6 +116,9 @@ const MyCalendar = () => {
         selectable
         view={view}
         onView={setView}
+        components={{
+          toolbar: CustomToolbar,
+        }}
       />
     </div>
   );
