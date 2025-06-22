@@ -4,6 +4,7 @@ import {
   DELETE_JURISDICTION,
   UPDATE_JURISDICTION,
   JURISDICTION_ERROR,
+  SET_DRAGGED_JURISDICTION,
 } from '../types';
 
 export default (state, action) => {
@@ -40,6 +41,11 @@ export default (state, action) => {
       return {
         ...state,
         error: action.payload,
+      };
+    case SET_DRAGGED_JURISDICTION:
+      return {
+        ...state,
+        draggedJurisdiction: action.payload,
       };
     default:
       return state;

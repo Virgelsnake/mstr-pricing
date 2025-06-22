@@ -8,14 +8,15 @@ import {
   DELETE_JURISDICTION,
   UPDATE_JURISDICTION,
   JURISDICTION_ERROR,
+  SET_DRAGGED_JURISDICTION,
 } from '../types';
 
 const JurisdictionState = (props) => {
   const initialState = {
     jurisdictions: [],
-    current: null,
-    error: null,
     loading: true,
+    error: null,
+    draggedJurisdiction: null,
   };
 
   const [state, dispatch] = useReducer(jurisdictionReducer, initialState);
@@ -51,8 +52,13 @@ const JurisdictionState = (props) => {
       await axios.delete(`/api/jurisdictions/${id}`);
       dispatch({ type: DELETE_JURISDICTION, payload: id });
     } catch (err) {
-      dispatch({ type: JURISDICTION_ERROR, payload: err.response.msg });
+      dispatch({ type: JURISDICTION_ERROR, payload: err.response.data.msg });
     }
+  };
+
+  // Set Dragged Jurisdiction
+  const setDraggedJurisdiction = (jurisdiction) => {
+    dispatch({ type: SET_DRAGGED_JURISDICTION, payload: jurisdiction });
   };
 
   // Update Jurisdiction
@@ -78,12 +84,13 @@ const JurisdictionState = (props) => {
     <JurisdictionContext.Provider
       value={{
         jurisdictions: state.jurisdictions,
-        current: state.current,
-        error: state.error,
         loading: state.loading,
+        error: state.error,
+        draggedJurisdiction: state.draggedJurisdiction,
         getJurisdictions,
         addJurisdiction,
         deleteJurisdiction,
+        setDraggedJurisdiction,
         updateJurisdiction,
       }}
     >
