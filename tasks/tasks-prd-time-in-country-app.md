@@ -30,17 +30,17 @@
   - [x] 2.3 Build a React component (`JurisdictionList`) to display all user jurisdictions.
   - [x] 2.4 Connect the frontend components to the backend API to manage jurisdictions.
 
-- [ ] 3.0 Build the Calendar and Day Allocation UI
+- [x] 3.0 Build the Calendar and Day Allocation UI
   - [x] 3.1 Integrate a calendar library (`react-big-calendar`) and a drag-and-drop library (`react-dnd`).
   - [x] 3.2 Create a `DayToken` component representing a single day for a jurisdiction.
   - [x] 3.3 Implement the main `Calendar` component to display events.
   - [x] 3.4 Enable dragging `DayToken`s and dropping them onto the calendar.
   - [x] 3.5 Save the allocated days to the database via an API call.
-  - [ ] 3.6 Add controls to switch between monthly and yearly calendar views.
+  - [x] 3.6 Add controls to switch between monthly and yearly calendar views.
 
 - [ ] 4.0 Create the Dashboard and Tracking View
-  - [ ] 4.1 Create the main `Dashboard` component.
-  - [ ] 4.2 Fetch all jurisdiction and allocated day data from the backend.
+  - [x] 4.1 Create the main `Dashboard` component.
+  - [x] 4.2 Fetch all jurisdiction and allocated day data from the backend.
   - [ ] 4.3 For each jurisdiction, implement a progress bar to visualize day usage.
 
 - [ ] 5.0 Finalize UI/UX and Deploy

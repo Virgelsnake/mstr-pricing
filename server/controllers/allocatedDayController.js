@@ -23,13 +23,14 @@ exports.allocateDay = async (req, res) => {
   const { jurisdiction, date } = req.body;
 
   try {
-    const newAllocatedDay = new AllocatedDay({
+    let allocatedDay = new AllocatedDay({
       user: req.user.id,
       jurisdiction,
       date,
     });
 
-    const allocatedDay = await newAllocatedDay.save();
+    await allocatedDay.save();
+    allocatedDay = await allocatedDay.populate('jurisdiction', 'name');
     res.json(allocatedDay);
   } catch (err) {
     console.error(err.message);
