@@ -1,79 +1,29 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const admin = require('firebase-admin');
 
-exports.signup = async (req, res) => {
-  const { name, email, password } = req.body;
-
-  try {
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ msg: 'User already exists' });
-    }
-
-    user = new User({
-      name,
-      email,
-      password,
-    });
-
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
-
-    await user.save();
-
-    const payload = {
-      user: {
-        id: user.id,
-      },
-    };
-
-    jwt.sign(
-      payload,
-      'your_jwt_secret', // Replace with an environment variable
-      { expiresIn: 360000 },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      }
-    );
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-};
-
-exports.login = async (req, res) => {
-  const { email, password } = req.body;
+// @desc    Sync user with Firestore
+// @route   POST /api/auth/sync
+// @access  Private
+exports.syncUser = async (req, res) => {
+  const { email, name } = req.body;
+  const { id } = req.user; // uid from firebase
 
   try {
-    let user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+    const userRef = req.db.collection('users').doc(id);
+    const doc = await userRef.get();
+
+    if (!doc.exists) {
+      // If user does not exist in Firestore, create them
+      await userRef.set({
+        name,
+        email,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      console.log(`New user created in Firestore with UID: ${id}`);
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
-    }
-
-    const payload = {
-      user: {
-        id: user.id,
-      },
-    };
-
-    jwt.sign(
-      payload,
-      'your_jwt_secret', // Replace with an environment variable
-      { expiresIn: 360000 },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      }
-    );
+    res.json({ msg: 'User synced successfully' });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send('Server Error');
   }
 };

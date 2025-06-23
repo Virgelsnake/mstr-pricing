@@ -1,19 +1,35 @@
 const request = require('supertest');
 const express = require('express');
 const allocatedDayRoutes = require('../routes/allocatedDays');
-const AllocatedDay = require('../models/AllocatedDay');
 
 // Mock the auth middleware
-jest.mock('../middleware/auth', () => (req, res, next) => {
+jest.mock('../middleware/authMiddleware', () => (req, res, next) => {
   req.user = { id: 'testUserId' };
   next();
 });
 
-// Mock the AllocatedDay model
-jest.mock('../models/AllocatedDay');
-
 const app = express();
 app.use(express.json());
+
+// Mock Firestore DB on request
+const mockDb = {
+  collection: jest.fn(),
+  where: jest.fn(),
+  get: jest.fn(),
+  doc: jest.fn(),
+  add: jest.fn(),
+};
+
+// Chaining mocks
+mockDb.collection.mockReturnThis();
+mockDb.where.mockReturnThis();
+mockDb.doc.mockReturnThis();
+
+app.use((req, res, next) => {
+  req.db = mockDb;
+  next();
+});
+
 app.use('/api/allocated-days', allocatedDayRoutes);
 
 describe('Allocated Day API', () => {
@@ -24,24 +40,37 @@ describe('Allocated Day API', () => {
   describe('GET /api/allocated-days', () => {
     it('should fetch all allocated days for a user', async () => {
       const mockDays = [
-        {
-          jurisdiction: { name: 'USA' },
-          date: '2023-01-01',
-        },
+        { id: 'day1', userId: 'testUserId', jurisdictionId: 'usa', date: '2023-01-01' },
       ];
-      const mockPopulate = jest.fn().mockResolvedValue(mockDays);
-      AllocatedDay.find.mockReturnValue({ populate: mockPopulate });
+      const snapshot = {
+        empty: false,
+        docs: mockDays.map(doc => ({ id: doc.id, data: () => doc })),
+      };
+      mockDb.get.mockResolvedValue(snapshot);
 
       const res = await request(app).get('/api/allocated-days');
 
       expect(res.statusCode).toEqual(200);
       expect(res.body).toEqual(mockDays);
-      expect(AllocatedDay.find).toHaveBeenCalledWith({ user: 'testUserId' });
+      expect(mockDb.collection).toHaveBeenCalledWith('allocatedDays');
+      expect(mockDb.where).toHaveBeenCalledWith('userId', '==', 'testUserId');
+    });
+
+    it('should return an empty array if no days are found', async () => {
+        const snapshot = {
+            empty: true,
+            docs: []
+        };
+        mockDb.get.mockResolvedValue(snapshot);
+
+        const res = await request(app).get('/api/allocated-days');
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toEqual([]);
     });
 
     it('should return 500 on server error', async () => {
-      const mockPopulate = jest.fn().mockRejectedValue(new Error('Server Error'));
-      AllocatedDay.find.mockReturnValue({ populate: mockPopulate });
+      mockDb.get.mockRejectedValue(new Error('Server Error'));
 
       const res = await request(app).get('/api/allocated-days');
 
@@ -52,35 +81,60 @@ describe('Allocated Day API', () => {
 
   describe('POST /api/allocated-days', () => {
     it('should allocate a new day', async () => {
-      const newDayData = { jurisdiction: 'jurisdictionId', date: '2023-01-02' };
-      const populatedDay = { ...newDayData, _id: 'dayId', user: 'testUserId', jurisdiction: { name: 'Testland' } };
-
-      const mockDocument = {
-        ...newDayData,
-        user: 'testUserId',
-        populate: jest.fn().mockResolvedValue(populatedDay),
+      const newDayData = { jurisdictionId: 'usa', date: '2023-01-02' };
+      const jurisdictionDoc = {
+          exists: true,
+          data: () => ({ name: 'USA' })
       };
-      const mockSave = jest.fn().mockResolvedValue(mockDocument);
-      AllocatedDay.mockImplementation(() => ({
-        save: mockSave,
-      }));
+      const newDocRef = { id: 'newDayId' };
+
+      // Mock the jurisdiction fetch
+      mockDb.get.mockResolvedValue(jurisdictionDoc);
+      // Mock the allocated day creation
+      mockDb.add.mockResolvedValue(newDocRef);
 
       const res = await request(app).post('/api/allocated-days').send(newDayData);
 
       expect(res.statusCode).toEqual(200);
-      expect(res.body).toEqual(populatedDay);
-      expect(mockDocument.populate).toHaveBeenCalledWith('jurisdiction', 'name');
+      expect(res.body).toEqual({
+          id: 'newDayId',
+          userId: 'testUserId',
+          jurisdictionId: 'usa',
+          jurisdictionName: 'USA',
+          date: '2023-01-02'
+      });
+      expect(mockDb.collection).toHaveBeenCalledWith('jurisdictions');
+      expect(mockDb.doc).toHaveBeenCalledWith('usa');
+      expect(mockDb.collection).toHaveBeenCalledWith('allocatedDays');
+      expect(mockDb.add).toHaveBeenCalledWith(expect.objectContaining({
+          userId: 'testUserId',
+          jurisdictionId: 'usa',
+          date: '2023-01-02'
+      }));
+    });
+
+    it('should return 404 if jurisdiction not found', async () => {
+        const jurisdictionDoc = { exists: false };
+        mockDb.get.mockResolvedValue(jurisdictionDoc);
+
+        const res = await request(app).post('/api/allocated-days').send({ jurisdictionId: 'nonexistent', date: '2023-01-01' });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.msg).toBe('Jurisdiction not found');
     });
 
     it('should return 500 on server error', async () => {
-        AllocatedDay.mockImplementation(() => ({
-            save: jest.fn().mockRejectedValue(new Error('Server Error')),
-        }));
+      const jurisdictionDoc = {
+          exists: true,
+          data: () => ({ name: 'USA' })
+      };
+      mockDb.get.mockResolvedValue(jurisdictionDoc);
+      mockDb.add.mockRejectedValue(new Error('Server Error'));
 
-        const res = await request(app).post('/api/allocated-days').send({ jurisdiction: '1', date: '2023-01-01' });
+      const res = await request(app).post('/api/allocated-days').send({ jurisdictionId: 'usa', date: '2023-01-01' });
 
-        expect(res.statusCode).toEqual(500);
-        expect(res.text).toBe('Server Error');
+      expect(res.statusCode).toEqual(500);
+      expect(res.text).toBe('Server Error');
     });
   });
 });

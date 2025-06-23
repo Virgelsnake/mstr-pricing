@@ -1,11 +1,16 @@
-const Jurisdiction = require('../models/Jurisdiction');
-
 // @desc    Get all jurisdictions for a user
 // @route   GET /api/jurisdictions
 // @access  Private
 exports.getJurisdictions = async (req, res) => {
   try {
-    const jurisdictions = await Jurisdiction.find({ user: req.user.id });
+    const jurisdictionsRef = req.db.collection('jurisdictions');
+    const snapshot = await jurisdictionsRef.where('userId', '==', req.user.id).get();
+
+    if (snapshot.empty) {
+      return res.json([]);
+    }
+
+    const jurisdictions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     res.json(jurisdictions);
   } catch (err) {
     console.error(err.message);
@@ -20,14 +25,14 @@ exports.createJurisdiction = async (req, res) => {
   const { name, daysAllowed } = req.body;
 
   try {
-    const newJurisdiction = new Jurisdiction({
+    const newJurisdiction = {
       name,
       daysAllowed,
-      user: req.user.id,
-    });
+      userId: req.user.id,
+    };
 
-    const jurisdiction = await newJurisdiction.save();
-    res.json(jurisdiction);
+    const docRef = await req.db.collection('jurisdictions').add(newJurisdiction);
+    res.json({ id: docRef.id, ...newJurisdiction });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -40,28 +45,25 @@ exports.createJurisdiction = async (req, res) => {
 exports.updateJurisdiction = async (req, res) => {
   const { name, daysAllowed } = req.body;
 
-  // Build jurisdiction object
-  const jurisdictionFields = {};
-  if (name) jurisdictionFields.name = name;
-  if (daysAllowed) jurisdictionFields.daysAllowed = daysAllowed;
-
   try {
-    let jurisdiction = await Jurisdiction.findById(req.params.id);
+    const jurisdictionRef = req.db.collection('jurisdictions').doc(req.params.id);
+    const doc = await jurisdictionRef.get();
 
-    if (!jurisdiction) return res.status(404).json({ msg: 'Jurisdiction not found' });
+    if (!doc.exists) {
+      return res.status(404).json({ msg: 'Jurisdiction not found' });
+    }
 
-    // Make sure user owns jurisdiction
-    if (jurisdiction.user.toString() !== req.user.id) {
+    if (doc.data().userId !== req.user.id) {
       return res.status(401).json({ msg: 'Not authorized' });
     }
 
-    jurisdiction = await Jurisdiction.findByIdAndUpdate(
-      req.params.id,
-      { $set: jurisdictionFields },
-      { new: true }
-    );
+    const updatedFields = {};
+    if (name) updatedFields.name = name;
+    if (daysAllowed) updatedFields.daysAllowed = daysAllowed;
 
-    res.json(jurisdiction);
+    await jurisdictionRef.update(updatedFields);
+
+    res.json({ id: req.params.id, ...doc.data(), ...updatedFields });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -73,16 +75,18 @@ exports.updateJurisdiction = async (req, res) => {
 // @access  Private
 exports.deleteJurisdiction = async (req, res) => {
   try {
-    let jurisdiction = await Jurisdiction.findById(req.params.id);
+    const jurisdictionRef = req.db.collection('jurisdictions').doc(req.params.id);
+    const doc = await jurisdictionRef.get();
 
-    if (!jurisdiction) return res.status(404).json({ msg: 'Jurisdiction not found' });
+    if (!doc.exists) {
+      return res.status(404).json({ msg: 'Jurisdiction not found' });
+    }
 
-    // Make sure user owns jurisdiction
-    if (jurisdiction.user.toString() !== req.user.id) {
+    if (doc.data().userId !== req.user.id) {
       return res.status(401).json({ msg: 'Not authorized' });
     }
 
-    await Jurisdiction.findByIdAndDelete(req.params.id);
+    await jurisdictionRef.delete();
 
     res.json({ msg: 'Jurisdiction removed' });
   } catch (err) {

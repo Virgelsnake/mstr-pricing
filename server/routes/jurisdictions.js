@@ -1,31 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
 const {
   getJurisdictions,
   createJurisdiction,
   updateJurisdiction,
   deleteJurisdiction,
 } = require('../controllers/jurisdictionController');
+const authMiddleware = require('../middleware/authMiddleware');
 
 // @route   GET api/jurisdictions
 // @desc    Get all user jurisdictions
 // @access  Private
-router.get('/', auth, getJurisdictions);
+router.use(authMiddleware);
+
+router.route('/').get(getJurisdictions).post(createJurisdiction);
 
 // @route   POST api/jurisdictions
 // @desc    Add new jurisdiction
 // @access  Private
-router.post('/', auth, createJurisdiction);
 
 // @route   PUT api/jurisdictions/:id
 // @desc    Update jurisdiction
 // @access  Private
-router.put('/:id', auth, updateJurisdiction);
+router.route('/:id').put(updateJurisdiction).delete(deleteJurisdiction);
 
 // @route   DELETE api/jurisdictions/:id
 // @desc    Delete jurisdiction
 // @access  Private
-router.delete('/:id', auth, deleteJurisdiction);
+
 
 module.exports = router;

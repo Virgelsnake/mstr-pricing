@@ -1,15 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { signup, login } = require('../controllers/authController');
+const { syncUser } = require('../controllers/authController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// @route   POST api/auth/signup
-// @desc    Register user
-// @access  Public
-router.post('/signup', signup);
-
-// @route   POST api/auth/login
-// @desc    Authenticate user & get token
-// @access  Public
-router.post('/login', login);
+// @route   POST api/auth/sync
+// @desc    Sync user with Firestore database
+// @access  Private
+router.post('/sync', authMiddleware, syncUser);
 
 module.exports = router;

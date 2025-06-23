@@ -1,5 +1,5 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const admin = require('firebase-admin');
 const path = require('path');
 
 const app = express();
@@ -7,14 +7,30 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// DB Config
-const db = 'YOUR_MONGODB_CONNECTION_STRING'; // IMPORTANT: Replace with your MongoDB connection string
+// Firebase Admin SDK Setup
+// IMPORTANT: Create a serviceAccountKey.json file in a 'config' directory.
+// You can get this from your Firebase project settings.
+// See: https://firebase.google.com/docs/admin/setup
+let serviceAccount;
+try {
+  serviceAccount = require('./config/serviceAccountKey.json');
+} catch (e) {
+  console.error('Error: serviceAccountKey.json not found in ./config directory.');
+  console.error('Please create the file with your Firebase service account credentials.');
+  process.exit(1);
+}
 
-// Connect to Mongo
-mongoose
-  .connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB Connected...'))
-  .catch(err => console.log(err));
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+console.log('Firebase Connected...');
+
+// Expose firestore db to routes
+app.use((req, res, next) => {
+  req.db = admin.firestore();
+  next();
+});
 
 // Use Routes
 app.use('/api/auth', require('./routes/auth'));
