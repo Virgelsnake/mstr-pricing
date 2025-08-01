@@ -1,20 +1,15 @@
-# Dependencies
-/node_modules
-/server/node_modules
-/client/node_modules
-/client/build
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment variables
+# Environments
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.venv
+venv/
+ENV/
+env/
 
-# macOS
-.DS_Store
+# IDE
+.vscode/
+.idea/

@@ -1,64 +1,75 @@
 ---
-description: 
-globs: 
-alwaysApply: false
+trigger: manual
 ---
-# Rule: Generating a Task List from a PRD
+
+# Cascade Workflow Template: Generating a Task List from a PRD
 
 ## Goal
 
-To guide an AI assistant in creating a detailed, step-by-step task list in Markdown format based on an existing Product Requirements Document (PRD). The task list should guide a developer through implementation.
+To guide Cascade, the AI assistant in the Windsurf IDE, in creating a detailed, step-by-step task list in Markdown format based on an existing Product Requirements Document (PRD). The task list should be structured to guide a junior developer through the implementation phase logically and methodically.
 
-## Output
+---
 
-- **Format:** Markdown (`.md`)
-- **Location:** `/tasks/`
-- **Filename:** `tasks-[prd-file-name].md` (e.g., `tasks-prd-user-profile-editing.md`)
+## The Process: Your Step-by-Step Instructions
 
-## Process
+This document provides Cascade with a clear, sequential process to follow.
 
-1.  **Receive PRD Reference:** The user points the AI to a specific PRD file
-2.  **Analyze PRD:** The AI reads and analyzes the functional requirements, user stories, and other sections of the specified PRD.
-3.  **Phase 1: Generate Parent Tasks:** Based on the PRD analysis, create the file and generate the main, high-level tasks required to implement the feature. Use your judgement on how many high-level tasks to use. It's likely to be about 5. Present these tasks to the user in the specified format (without sub-tasks yet). Inform the user: "I have generated the high-level tasks based on the PRD. Ready to generate the sub-tasks? Respond with 'Go' to proceed."
-4.  **Wait for Confirmation:** Pause and wait for the user to respond with "Go".
-5.  **Phase 2: Generate Sub-Tasks:** Once the user confirms, break down each parent task into smaller, actionable sub-tasks necessary to complete the parent task. Ensure sub-tasks logically follow from the parent task and cover the implementation details implied by the PRD.
-6.  **Identify Relevant Files:** Based on the tasks and PRD, identify potential files that will need to be created or modified. List these under the `Relevant Files` section, including corresponding test files if applicable.
-7.  **Generate Final Output:** Combine the parent tasks, sub-tasks, relevant files, and notes into the final Markdown structure.
-8.  **Save Task List:** Save the generated document in the `/tasks/` directory with the filename `tasks-[prd-file-name].md`, where `[prd-file-name]` matches the base name of the input PRD file (e.g., if the input was `prd-user-profile-editing.md`, the output is `tasks-prd-user-profile-editing.md`).
+**1. Receive the PRD File:**
+   - The user will provide a reference to a specific PRD file (e.g., `@prd-feature-name.md`).
 
-## Output Format
+**2. Analyse the PRD:**
+   - Thoroughly read and analyse the functional requirements, user stories, and technical considerations outlined in the provided PRD.
 
-The generated task list _must_ follow this structure:
+**3. Phase 1: Generate High-Level Parent Tasks:**
+   - Based on your analysis, generate the main, high-level tasks required to implement the feature or application. A typical project will have between 3 to 7 parent tasks.
+   - Present these high-level tasks to the user first.
+   - **You must use the following prompt to ask for user confirmation before proceeding:**
+
+   > "I have generated the high-level tasks based on the PRD. Ready to generate the detailed sub-tasks? Please respond with 'Go' to proceed."
+
+**4. Wait for User Confirmation:**
+   - **Crucial Step:** Pause all further actions and wait for the user to respond with "Go". Do not generate sub-tasks until you receive this confirmation.
+
+**5. Phase 2: Generate Detailed Sub-Tasks:**
+   - Once the user confirms, proceed to break down each parent task into smaller, actionable sub-tasks.
+   - These sub-tasks should be granular enough for a junior developer to implement one at a time. For example, a sub-task could be "Create a new API endpoint at `/api/data`" or "Add a button component to the main dashboard."
+
+**6. Identify Relevant Files and Provide Notes:**
+   - Based on the complete task list, identify all potential files that will need to be created or modified.
+   - List these files under a `Relevant Files` section. For each file, include a brief description of its purpose. It is a best practice to include corresponding test files.
+   - Add a `Notes` section for any important development context, such as commands for running tests.
+
+**7. Assemble and Save the Final Task List:**
+   - Combine the parent tasks, sub-tasks, relevant files, and notes into a single Markdown document using the **Required Output Format** specified below.
+   - Save the generated document in the `/tasks/` directory with the filename `tasks-[prd-file-name].md`, where `[prd-file-name]` matches the base name of the input PRD file.
+
+---
+
+## Required Output Format
+
+The generated task list **must** follow this structure precisely. This format is critical for the next step in our workflow, where Cascade will be asked to process this list one item at a time.
 
 ```markdown
 ## Relevant Files
 
-- `path/to/potential/file1.ts` - Brief description of why this file is relevant (e.g., Contains the main component for this feature).
-- `path/to/file1.test.ts` - Unit tests for `file1.ts`.
-- `path/to/another/file.tsx` - Brief description (e.g., API route handler for data submission).
-- `path/to/another/file.test.tsx` - Unit tests for `another/file.tsx`.
-- `lib/utils/helpers.ts` - Brief description (e.g., Utility functions needed for calculations).
-- `lib/utils/helpers.test.ts` - Unit tests for `helpers.ts`.
+- `src/api/routes.py` - Will contain the main Flask API endpoints.
+- `src/services/model_trainer.py` - The standalone script for retraining the model.
+- `src/static/index.html` - The main frontend file that will be updated.
+- `tests/test_api.py` - Unit tests for the API endpoints.
 
 ### Notes
 
-- Unit tests should typically be placed alongside the code files they are testing (e.g., `MyComponent.tsx` and `MyComponent.test.tsx` in the same directory).
-- Use `npx jest [optional/path/to/test/file]` to run tests. Running without a path executes all tests found by the Jest configuration.
+- This task list is designed to be processed sequentially.
+- Use `pytest` to run all tests from the root directory.
 
 ## Tasks
 
-- [ ] 1.0 Parent Task Title
-  - [ ] 1.1 [Sub-task description 1.1]
-  - [ ] 1.2 [Sub-task description 1.2]
-- [ ] 2.0 Parent Task Title
-  - [ ] 2.1 [Sub-task description 2.1]
-- [ ] 3.0 Parent Task Title (may not require sub-tasks if purely structural or configuration)
-```
-
-## Interaction Model
-
-The process explicitly requires a pause after generating parent tasks to get user confirmation ("Go") before proceeding to generate the detailed sub-tasks. This ensures the high-level plan aligns with user expectations before diving into details.
-
-## Target Audience
-
-Assume the primary reader of the task list is a **junior developer** who will implement the feature.
+- [ ] 1.0 **Parent Task:** Set Up the Initial Flask Application
+  - [ ] 1.1 Create the basic Flask app structure with a `/api` blueprint.
+  - [ ] 1.2 Implement the `/api/coefficients` endpoint to return static, hard-coded JSON.
+- [ ] 2.0 **Parent Task:** Integrate with the Frontend
+  - [ ] 2.1 Modify the JavaScript in `index.html` to fetch data from the `/api/coefficients` endpoint.
+  - [ ] 2.2 Ensure the calculator populates correctly with the fetched data on page load.
+- [ ] 3.0 **Parent Task:** Develop the Data Upload and Processing Logic
+  - [ ] 3.1 Create the `/upload` endpoint with a file input form.
+  - [ ] 3.2 Implement file validation to check for correct format and required columns.
