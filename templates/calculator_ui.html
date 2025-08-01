@@ -9,7 +9,6 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
-            flex-direction: column; /* Align items vertically */
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -51,7 +50,7 @@
             padding: 3px 9px;
             border-radius: 6px;
         }
-        /* Slider Styling */
+        /* Slider Styling - Enhanced for better drag functionality */
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
@@ -61,30 +60,84 @@
             border-radius: 5px;
             outline: none;
             opacity: 0.9;
-            transition: opacity .2s;
+            transition: opacity .2s, background-color .2s ease;
             margin-top: 5px;
+            cursor: pointer; /* Explicit cursor pointer */
+            touch-action: none; /* Prevent scrolling on touch */
         }
         input[type="range"]:hover {
             opacity: 1;
+            background: #555555; /* Slightly lighter on hover for feedback */
         }
+        input[type="range"].dragging {
+            background: #666666; /* Even lighter when dragging */
+            opacity: 1;
+        }
+        /* WebKit (Chrome, Safari, Edge) */
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 22px;
             height: 22px;
             background: #F7931A; /* Bitcoin Orange */
-            cursor: pointer;
+            cursor: grab; /* Grab cursor for dragging */
             border-radius: 50%;
             border: 2px solid #FFFFFF;
             box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            /* Improve draggability */
+            margin-top: -7px; /* Centers the thumb on the track */
+            transition: all 0.15s ease;
+            transform-origin: center;
         }
+        input[type="range"]:active::-webkit-slider-thumb,
+        input[type="range"].dragging::-webkit-slider-thumb {
+            cursor: grabbing; /* Change cursor while actively dragging */
+            background: #FF8C00; /* Slightly different color when active */
+            transform: scale(1.1); /* Slightly larger when dragging */
+            box-shadow: 0 3px 7px rgba(0,0,0,0.6);
+        }
+        /* Firefox */
         input[type="range"]::-moz-range-thumb {
             width: 22px;
             height: 22px;
             background: #F7931A; /* Bitcoin Orange */
-            cursor: pointer;
+            cursor: grab; /* Grab cursor for dragging */
             border-radius: 50%;
             border: 2px solid #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            transition: all 0.15s ease;
+            transform-origin: center;
+        }
+        input[type="range"]:active::-moz-range-thumb,
+        input[type="range"].dragging::-moz-range-thumb {
+            cursor: grabbing; /* Change cursor while actively dragging */
+            background: #FF8C00; /* Slightly different color when active */
+            transform: scale(1.1); /* Slightly larger when dragging */
+            box-shadow: 0 3px 7px rgba(0,0,0,0.6);
+        }
+        /* Internet Explorer and Edge */
+        input[type="range"]::-ms-thumb {
+            width: 22px;
+            height: 22px;
+            background: #F7931A; /* Bitcoin Orange */
+            cursor: grab;
+            border-radius: 50%;
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            transition: all 0.15s ease;
+        }
+        input[type="range"]:active::-ms-thumb,
+        input[type="range"].dragging::-ms-thumb {
+            background: #FF8C00; /* Slightly different color when active */
+            transform: scale(1.1); /* Slightly larger when dragging */
+            box-shadow: 0 3px 7px rgba(0,0,0,0.6);
+        }
+        input[type="range"]::-ms-track {
+            width: 100%;
+            height: 8px;
+            background: transparent;
+            border-color: transparent;
+            color: transparent;
         }
         /* Forecast Display */
         .forecast-display {
@@ -93,6 +146,16 @@
             background-color: #212121;
             border-radius: 8px;
             border-top: 3px solid #F7931A;
+            position: relative;
+        }
+        
+        /* Loading Indicator */
+        #loading-indicator {
+            color: #F7931A;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-style: italic;
+            opacity: 0.8;
         }
         .forecast-display h2 {
             margin: 0 0 10px 0;
@@ -105,12 +168,6 @@
             font-weight: 700;
             color: #F7931A; /* Bitcoin Orange */
         }
-        footer {
-            margin-top: 20px; /* Adjusted margin */
-            font-size: 0.8em;
-            color: #666;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -118,13 +175,13 @@
     <div class="calculator">
         <h1>MSTR Stock Price Forecaster</h1>
 
-        <!-- BTC Price Slider -->
+        <!-- BTC Price Slider (Step updated to 100) -->
         <div class="input-group">
             <label for="btc-price">BTC Price: <span id="btc-price-value">$115,000</span></label>
             <input type="range" id="btc-price" min="10000" max="500000" step="100" value="115000">
         </div>
 
-        <!-- M-NAV Slider -->
+        <!-- M-NAV Slider (Step updated to 0.01) -->
         <div class="input-group">
             <label for="m-nav">M-NAV: <span id="m-nav-value">1.78</span></label>
             <input type="range" id="m-nav" min="0.5" max="25" step="0.01" value="1.78">
@@ -134,10 +191,9 @@
         <div class="forecast-display">
             <h2>Forecasted MSTR Stock Price</h2>
             <div id="forecast-output">$0.00</div>
+            <div id="loading-indicator" style="display: none;">Loading...</div>
         </div>
     </div>
-
-    <footer id="footer">Loading model data...</footer>
 
     <script>
         // --- Get references to UI elements ---
@@ -146,7 +202,7 @@
         const mNavSlider = document.getElementById('m-nav');
         const mNavValueDisplay = document.getElementById('m-nav-value');
         const forecastOutput = document.getElementById('forecast-output');
-        const footer = document.getElementById('footer');
+        const loadingIndicator = document.getElementById('loading-indicator');
 
         // --- Model coefficients will be fetched from the API ---
         let modelCoefficients = {};
@@ -155,43 +211,148 @@
          * Updates the forecasted MSTR price based on the current slider values.
          */
         function updateForecast() {
-            if (!modelCoefficients.intercept) return; // Don't calculate if coefficients aren't loaded
-
+            // Update the display for the current slider values
             const btcPrice = parseFloat(btcSlider.value);
             const mNav = parseFloat(mNavSlider.value);
-
             btcValueDisplay.textContent = `$${btcPrice.toLocaleString()}`;
             mNavValueDisplay.textContent = mNav.toFixed(2);
 
-            const forecastedPrice = modelCoefficients.intercept + (btcPrice * modelCoefficients.btc_coeff) + (mNav * modelCoefficients.mnav_coeff);
-            
-            const finalPrice = Math.max(0, forecastedPrice);
-            forecastOutput.textContent = `$${finalPrice.toFixed(2)}`;
+            // Calculate forecast only if coefficients are loaded
+            if (modelCoefficients.intercept) {
+                const forecastedPrice = modelCoefficients.intercept + (btcPrice * modelCoefficients.btc_coeff) + (mNav * modelCoefficients.mnav_coeff);
+                const finalPrice = Math.max(0, forecastedPrice);
+                forecastOutput.textContent = `$${finalPrice.toFixed(2)}`;
+            }
         }
 
-        // --- Initial Data Fetching and Calculation ---
-        document.addEventListener('DOMContentLoaded', () => {
-            fetch('/api/coefficients')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
+        // --- Event Listeners for slider interaction ---
+        // Enhanced for smoother dragging and touch support
+        
+        const sliders = [btcSlider, mNavSlider];
+        
+        sliders.forEach(slider => {
+            // Basic input event for immediate value changes
+            slider.addEventListener('input', updateForecast);
+            
+            // Handle changes after releasing the slider (for browsers that need it)
+            slider.addEventListener('change', updateForecast);
+            
+            // Track if we're currently dragging
+            let isDragging = false;
+            let lastUpdateTime = 0;
+            const updateThrottle = 16; // ~60fps for smooth updates
+            
+            // Shared handler for both mouse and touch events
+            const handleDragStart = function(e) {
+                // Prevent any default actions
+                e.preventDefault();
+                
+                // Add visual feedback that slider is being dragged
+                slider.classList.add('dragging');
+                isDragging = true;
+                
+                // Initial forecast update
+                updateForecast();
+                
+                // Get pointer position (works for both mouse and touch)
+                const getPointerPosition = function(event) {
+                    // For touch events, use the first touch point
+                    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+                    return clientX;
+                };
+                
+                // Handler for pointer movement
+                const handleDragMove = function(event) {
+                    if (!isDragging) return;
+                    
+                    // Throttle updates for better performance
+                    const now = Date.now();
+                    if (now - lastUpdateTime < updateThrottle) return;
+                    lastUpdateTime = now;
+                    
+                    // Calculate slider position
+                    const rect = slider.getBoundingClientRect();
+                    const clientX = getPointerPosition(event);
+                    
+                    // Ensure pointer is within slider bounds horizontally
+                    if (clientX < rect.left || clientX > rect.right) return;
+                    
+                    const position = (clientX - rect.left) / rect.width;
+                    
+                    // Calculate value within slider range
+                    const min = parseFloat(slider.min);
+                    const max = parseFloat(slider.max);
+                    const step = parseFloat(slider.step) || 1;
+                    
+                    // Calculate the value based on position with smooth interpolation
+                    let newValue = min + position * (max - min);
+                    
+                    // Apply step constraints
+                    newValue = Math.round(newValue / step) * step;
+                    
+                    // Ensure value is within bounds
+                    newValue = Math.max(min, Math.min(max, newValue));
+                    
+                    // Update slider value with requestAnimationFrame for smoother updates
+                    if (slider.value != newValue) {
+                        requestAnimationFrame(() => {
+                            slider.value = newValue;
+                            updateForecast();
+                        });
                     }
-                    return response.json();
-                })
+                };
+                
+                // Handler for ending the drag operation
+                const handleDragEnd = function() {
+                    if (!isDragging) return;
+                    
+                    isDragging = false;
+                    slider.classList.remove('dragging');
+                    
+                    // Remove all event listeners
+                    document.removeEventListener('mousemove', handleDragMove);
+                    document.removeEventListener('touchmove', handleDragMove);
+                    document.removeEventListener('mouseup', handleDragEnd);
+                    document.removeEventListener('touchend', handleDragEnd);
+                    document.removeEventListener('touchcancel', handleDragEnd);
+                };
+                
+                // Add all necessary event listeners
+                document.addEventListener('mousemove', handleDragMove, { passive: false });
+                document.addEventListener('touchmove', handleDragMove, { passive: false });
+                document.addEventListener('mouseup', handleDragEnd);
+                document.addEventListener('touchend', handleDragEnd);
+                document.addEventListener('touchcancel', handleDragEnd);
+            };
+            
+            // Add event listeners for both mouse and touch events
+            slider.addEventListener('mousedown', handleDragStart);
+            slider.addEventListener('touchstart', handleDragStart, { passive: false });
+        });
+
+        // Fetch data and then run the initial calculation
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+            forecastOutput.style.opacity = '0.5';
+            
+            fetch('/api/coefficients')
+                .then(response => response.json())
                 .then(data => {
                     modelCoefficients = data;
-                    const lastUpdated = new Date(modelCoefficients.last_updated);
-                    footer.textContent = `Model last updated: ${lastUpdated.toLocaleString()}`;
-
-                    // --- Set up event listeners and initial calculation AFTER data is loaded ---
-                    btcSlider.addEventListener('input', updateForecast);
-                    mNavSlider.addEventListener('input', updateForecast);
-                    updateForecast(); // Initial calculation
+                    updateForecast(); // Initial calculation after data is loaded
+                    
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    forecastOutput.style.opacity = '1';
                 })
                 .catch(error => {
                     console.error('Error fetching coefficients:', error);
                     forecastOutput.textContent = 'Error';
-                    footer.textContent = 'Could not load model data from the server.';
+                    
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    forecastOutput.style.opacity = '1';
                 });
         });
 

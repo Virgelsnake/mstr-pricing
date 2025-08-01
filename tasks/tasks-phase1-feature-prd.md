@@ -36,12 +36,12 @@
   - [x] 3.5 Add error handling for API endpoints and database connections
   - [x] 3.6 Configure the Flask app to run on port 5001
 
-- [ ] 4.0 **Parent Task:** Integrate Frontend Calculator UI
-  - [ ] 4.1 Create or update the calculator_ui.html template
-  - [ ] 4.2 Add JavaScript to fetch coefficients from the `/api/coefficients` endpoint
-  - [ ] 4.3 Implement error handling for API requests
-  - [ ] 4.4 Update the calculator logic to use the fetched coefficients
-  - [ ] 4.5 Add a loading state while fetching data
+- [x] 4.0 **Parent Task:** Integrate Frontend Calculator UI
+  - [x] 4.1 Create or update the calculator_ui.html template
+  - [x] 4.2 Add JavaScript to fetch coefficients from the `/api/coefficients` endpoint
+  - [x] 4.3 Implement error handling for API requests
+  - [x] 4.4 Update the calculator logic to use the fetched coefficients
+  - [x] 4.5 Add a loading state while fetching data
 
 - [ ] 5.0 **Parent Task:** Testing & Validation
   - [ ] 5.1 Create unit tests for the `/api/coefficients` endpoint
