@@ -21,12 +21,12 @@
   - [x] 1.3 Create .env file with placeholders for Supabase URL and Service Key
   - [x] 1.4 Update README.md with setup instructions and project overview
 
-- [ ] 2.0 **Parent Task:** Set Up Supabase Project & Database
-  - [ ] 2.1 Create a new Supabase project (if not already done)
-  - [ ] 2.2 Add Supabase URL and Service Key to the .env file
-  - [ ] 2.3 Create the `mstr_historical_data` table with required columns
-  - [ ] 2.4 Create the `model_coefficients` table with required columns
-  - [ ] 2.5 Add initial test data to the `model_coefficients` table
+- [x] 2.0 **Parent Task:** Set Up Supabase Project & Database
+  - [x] 2.1 Create a new Supabase project (if not already done)
+  - [x] 2.2 Add Supabase URL and Service Key to the .env file
+  - [x] 2.3 Create the `mstr_historical_data` table with required columns
+  - [x] 2.4 Create the `model_coefficients` table with required columns
+  - [x] 2.5 Add initial test data to the `model_coefficients` table
 
 - [ ] 3.0 **Parent Task:** Develop Flask Backend API
   - [ ] 3.1 Create the basic Flask application structure in src/app.py
