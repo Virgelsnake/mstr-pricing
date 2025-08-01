@@ -28,13 +28,13 @@
   - [x] 2.4 Create the `model_coefficients` table with required columns
   - [x] 2.5 Add initial test data to the `model_coefficients` table
 
-- [ ] 3.0 **Parent Task:** Develop Flask Backend API
-  - [ ] 3.1 Create the basic Flask application structure in src/app.py
-  - [ ] 3.2 Initialize Supabase client using environment variables
-  - [ ] 3.3 Implement the `/api/coefficients` endpoint with hard-coded model coefficients
-  - [ ] 3.4 Create a route to serve the calculator UI HTML file
-  - [ ] 3.5 Add error handling for API endpoints and database connections
-  - [ ] 3.6 Configure the Flask app to run on port 5001
+- [x] 3.0 **Parent Task:** Develop Flask Backend API
+  - [x] 3.1 Create the basic Flask application structure in src/app.py
+  - [x] 3.2 Initialize Supabase client using environment variables
+  - [x] 3.3 Implement the `/api/coefficients` endpoint (fetching from database instead of hard-coded)
+  - [x] 3.4 Create a route to serve the calculator UI HTML file
+  - [x] 3.5 Add error handling for API endpoints and database connections
+  - [x] 3.6 Configure the Flask app to run on port 5001
 
 - [ ] 4.0 **Parent Task:** Integrate Frontend Calculator UI
   - [ ] 4.1 Create or update the calculator_ui.html template
