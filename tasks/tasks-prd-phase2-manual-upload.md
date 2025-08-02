@@ -25,10 +25,10 @@
   - [x] 2.1 Create a new HTML file `templates/upload.html`.
   - [x] 2.2 In `upload.html`, add a heading, a file input that accepts only `.csv` files, and a submit button.
   - [x] 2.3 In `upload.html`, add a designated area (e.g., a `<div>`) to display status and error messages.
-  - [ ] 2.4 Style `upload.html` to match the existing Bitcoin-themed design.
-  - [ ] 2.5 Create a new JavaScript file `static/js/upload.js`.
-  - [ ] 2.6 In `upload.js`, implement a `fetch` request to handle the form submission to the `/upload` endpoint.
-  - [ ] 2.7 In `upload.js`, implement logic to display the success or error messages returned from the backend.
+  - [x] 2.4 Style `upload.html` to match the existing Bitcoin-themed design.
+  - [x] 2.5 Create a new JavaScript file `static/js/upload.js`.
+  - [x] 2.6 In `upload.js`, implement a `fetch` request to handle the form submission to the `/upload` endpoint.
+  - [x] 2.7 In `upload.js`, implement logic to display the success or error messages returned from the backend.
 
 - [ ] 3.0 **Parent Task:** Implement the Backend File Upload Logic
   - [ ] 3.1 Create a new Flask route `/upload` in `app.py` that handles both `GET` and `POST` requests.
