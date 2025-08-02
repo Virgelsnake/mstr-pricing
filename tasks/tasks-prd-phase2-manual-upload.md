@@ -30,15 +30,15 @@
   - [x] 2.6 In `upload.js`, implement a `fetch` request to handle the form submission to the `/upload` endpoint.
   - [x] 2.7 In `upload.js`, implement logic to display the success or error messages returned from the backend.
 
-- [ ] 3.0 **Parent Task:** Implement the Backend File Upload Logic
+- [x] 3.0 **Parent Task:** Implement the Backend File Upload Logic
   - [x] 3.1 Create a new Flask route `/upload` in `app.py` that handles both `GET` and `POST` requests.
   - [x] 3.2 In the `POST` handler, validate that the uploaded file has a `.csv` extension. Return a specific JSON error if not.
   - [x] 3.3 Parse the CSV and validate that it contains the required columns: `close`, `btc_price`, `m_nav`. Return a specific JSON error if not.
   - [x] 3.4 If validation passes, upload the original CSV file to the `market-data-uploads` Supabase Storage bucket.
   - [x] 3.5 Parse the validated data and insert the new records into the `mstr_historical_data` table.
 
-- [ ] 4.0 **Parent Task:** Integrate Automated Model Retraining
-  - [ ] 4.1 After successfully inserting the data, use Python's `subprocess` module in `app.py` to trigger `train_model.py` as a non-blocking process.
-  - [ ] 4.2 Return a success JSON message to the frontend indicating the upload was successful and retraining has started.
-  - [ ] 4.3 Modify the `/api/coefficients` endpoint to include the `last_updated` timestamp from the `model_coefficients` table.
-  - [ ] 4.4 Update the main calculator's frontend JavaScript (`static/js/calculator.js`) to fetch and display the `last_updated` timestamp in the page footer.
+- [x] 4.0 **Parent Task:** Integrate Automated Model Retraining
+  - [x] 4.1 After successfully inserting the data, use Python's `subprocess` module in `app.py` to trigger `train_model.py` as a non-blocking process.
+  - [x] 4.2 Return a success JSON message to the frontend indicating the upload was successful and retraining has started.
+  - [x] 4.3 Modify the `/api/coefficients` endpoint to include the `last_updated` timestamp from the `model_coefficients` table.
+  - [x] 4.4 Update the main calculator's frontend JavaScript (`static/js/calculator.js`) to fetch and display the `last_updated` timestamp in the page footer.
