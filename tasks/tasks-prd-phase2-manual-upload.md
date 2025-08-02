@@ -21,7 +21,7 @@
   - [x] 1.2 Ensure the `mstr_historical_data` table exists with columns: `date`, `close`, `btc_price`, `m_nav`.
   - [x] 1.3 Ensure the `model_coefficients` table exists with columns: `coefficient_name`, `value`, and `last_updated`.
 
-- [ ] 2.0 **Parent Task:** Build the Frontend Upload Page
+- [x] 2.0 **Parent Task:** Build the Frontend Upload Page
   - [x] 2.1 Create a new HTML file `templates/upload.html`.
   - [x] 2.2 In `upload.html`, add a heading, a file input that accepts only `.csv` files, and a submit button.
   - [x] 2.3 In `upload.html`, add a designated area (e.g., a `<div>`) to display status and error messages.
@@ -31,11 +31,11 @@
   - [x] 2.7 In `upload.js`, implement logic to display the success or error messages returned from the backend.
 
 - [ ] 3.0 **Parent Task:** Implement the Backend File Upload Logic
-  - [ ] 3.1 Create a new Flask route `/upload` in `app.py` that handles both `GET` and `POST` requests.
-  - [ ] 3.2 In the `POST` handler, validate that the uploaded file has a `.csv` extension. Return a specific JSON error if not.
-  - [ ] 3.3 Parse the CSV and validate that it contains the required columns: `close`, `btc_price`, `m_nav`. Return a specific JSON error if not.
-  - [ ] 3.4 If validation passes, upload the original CSV file to the `market-data-uploads` Supabase Storage bucket.
-  - [ ] 3.5 Parse the validated data and insert the new records into the `mstr_historical_data` table.
+  - [x] 3.1 Create a new Flask route `/upload` in `app.py` that handles both `GET` and `POST` requests.
+  - [x] 3.2 In the `POST` handler, validate that the uploaded file has a `.csv` extension. Return a specific JSON error if not.
+  - [x] 3.3 Parse the CSV and validate that it contains the required columns: `close`, `btc_price`, `m_nav`. Return a specific JSON error if not.
+  - [x] 3.4 If validation passes, upload the original CSV file to the `market-data-uploads` Supabase Storage bucket.
+  - [x] 3.5 Parse the validated data and insert the new records into the `mstr_historical_data` table.
 
 - [ ] 4.0 **Parent Task:** Integrate Automated Model Retraining
   - [ ] 4.1 After successfully inserting the data, use Python's `subprocess` module in `app.py` to trigger `train_model.py` as a non-blocking process.
