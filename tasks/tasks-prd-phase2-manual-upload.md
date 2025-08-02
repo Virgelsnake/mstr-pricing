@@ -42,3 +42,9 @@
   - [x] 4.2 Return a success JSON message to the frontend indicating the upload was successful and retraining has started.
   - [x] 4.3 Modify the `/api/coefficients` endpoint to include the `last_updated` timestamp from the `model_coefficients` table.
   - [x] 4.4 Update the main calculator's frontend JavaScript (`static/js/calculator.js`) to fetch and display the `last_updated` timestamp in the page footer.
+
+- [x] 5.0 **Parent Task:** Debug and Finalize Upload Feature
+  - [x] 5.1 Resolve Supabase RLS and authentication issues by using the `service_role` key for backend operations.
+  - [x] 5.2 Set up and use a Python virtual environment for dependency management.
+  - [x] 5.3 Fix data insertion error by handling mismatched columns between the CSV and the database table.
+  - [x] 5.4 Confirm successful end-to-end file upload and data insertion.

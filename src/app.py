@@ -12,7 +12,10 @@ load_dotenv()
 
 # Initialize Supabase client
 url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
+key: str = os.environ.get("SUPABASE_SERVICE_KEY")
+
+
+
 supabase: Client = create_client(url, key)
 
 app = Flask(__name__, static_folder='../static', template_folder='../templates')
@@ -77,8 +80,12 @@ def upload_file():
             storage_bucket = 'market-data-uploads'
             supabase.storage.from_(storage_bucket).upload(storage_filename, file_content)
 
+            # Select only the required columns for the database insert
+            db_columns = ['timestamp', 'close', 'btc_price', 'm_nav']
+            df_for_db = df[db_columns]
+
             # Prepare and insert data into the historical data table
-            records = df.to_dict(orient='records')
+            records = df_for_db.to_dict(orient='records')
             supabase.table('mstr_historical_data').insert(records).execute()
 
             # Trigger model retraining script as a non-blocking process
