@@ -157,6 +157,33 @@
             font-style: italic;
             opacity: 0.8;
         }
+        
+        /* Refresh Button and Last Updated */
+        .refresh-container {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .refresh-button {
+            background-color: #4a6da7;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .refresh-button:hover {
+            background-color: #3a5d97;
+        }
+        
+        .last-updated {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+        }
         .forecast-display h2 {
             margin: 0 0 10px 0;
             font-size: 1.1rem;
@@ -193,6 +220,12 @@
             <div id="forecast-output">$0.00</div>
             <div id="loading-indicator" style="display: none;">Loading...</div>
         </div>
+        
+        <!-- Refresh Model Button and Last Updated -->
+        <div class="refresh-container">
+            <button id="refresh-model" class="refresh-button">Refresh Model</button>
+            <div id="last-updated" class="last-updated">Last updated: Never</div>
+        </div>
     </div>
 
     <script>
@@ -203,9 +236,15 @@
         const mNavValueDisplay = document.getElementById('m-nav-value');
         const forecastOutput = document.getElementById('forecast-output');
         const loadingIndicator = document.getElementById('loading-indicator');
+        const refreshButton = document.getElementById('refresh-model');
+        const lastUpdatedDisplay = document.getElementById('last-updated');
 
-        // --- Model coefficients will be fetched from the API ---
+        // --- Model coefficients will be fetched from the API or loaded from cache ---
         let modelCoefficients = {};
+        
+        // Local storage keys
+        const STORAGE_KEY_COEFFICIENTS = 'mstr_model_coefficients';
+        const STORAGE_KEY_LAST_UPDATED = 'mstr_model_last_updated';
 
         /**
          * Updates the forecasted MSTR price based on the current slider values.
@@ -219,7 +258,16 @@
 
             // Calculate forecast only if coefficients are loaded
             if (modelCoefficients.intercept) {
+                // Log the values for debugging
+                console.log('BTC Price:', btcPrice);
+                console.log('M-NAV:', mNav);
+                console.log('Intercept:', modelCoefficients.intercept);
+                console.log('BTC Coefficient:', modelCoefficients.btc_coeff);
+                console.log('M-NAV Coefficient:', modelCoefficients.mnav_coeff);
+                
                 const forecastedPrice = modelCoefficients.intercept + (btcPrice * modelCoefficients.btc_coeff) + (mNav * modelCoefficients.mnav_coeff);
+                console.log('Calculated Price:', forecastedPrice);
+                
                 const finalPrice = Math.max(0, forecastedPrice);
                 forecastOutput.textContent = `$${finalPrice.toFixed(2)}`;
             }
@@ -330,33 +378,150 @@
             slider.addEventListener('touchstart', handleDragStart, { passive: false });
         });
 
-        // Fetch data and then run the initial calculation
-        document.addEventListener('DOMContentLoaded', () => {
-            // Show loading indicator
-            loadingIndicator.style.display = 'block';
-            forecastOutput.style.opacity = '0.5';
-            
-            fetch('/api/coefficients')
-                .then(response => response.json())
+        /**
+         * Formats a date string in a user-friendly format
+         */
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        /**
+         * Saves model coefficients to local storage
+         */
+        function saveToLocalStorage(coefficients) {
+            try {
+                // Save the coefficients
+                localStorage.setItem(STORAGE_KEY_COEFFICIENTS, JSON.stringify(coefficients));
+                
+                // Save the current timestamp
+                const now = new Date().toISOString();
+                localStorage.setItem(STORAGE_KEY_LAST_UPDATED, now);
+                
+                // Update the last updated display
+                updateLastUpdatedDisplay(now);
+                
+                return true;
+            } catch (error) {
+                console.error('Error saving to local storage:', error);
+                return false;
+            }
+        }
+        
+        /**
+         * Loads model coefficients from local storage
+         */
+        function loadFromLocalStorage() {
+            try {
+                // Get the saved coefficients
+                const savedCoefficients = localStorage.getItem(STORAGE_KEY_COEFFICIENTS);
+                if (!savedCoefficients) return null;
+                
+                // Get the last updated timestamp
+                const lastUpdated = localStorage.getItem(STORAGE_KEY_LAST_UPDATED);
+                
+                // Update the last updated display
+                if (lastUpdated) {
+                    updateLastUpdatedDisplay(lastUpdated);
+                }
+                
+                return JSON.parse(savedCoefficients);
+            } catch (error) {
+                console.error('Error loading from local storage:', error);
+                return null;
+            }
+        }
+        
+        /**
+         * Updates the last updated timestamp display
+         */
+        function updateLastUpdatedDisplay(timestamp) {
+            if (timestamp) {
+                lastUpdatedDisplay.textContent = `Last updated: ${formatDate(timestamp)}`;
+            } else {
+                lastUpdatedDisplay.textContent = 'Last updated: Never';
+            }
+        }
+        
+        /**
+         * Fetches the latest model coefficients from the API
+         */
+        function fetchModelCoefficients(showLoading = true) {
+            return new Promise((resolve, reject) => {
+                // Show loading indicator if requested
+                if (showLoading) {
+                    loadingIndicator.style.display = 'block';
+                    forecastOutput.style.opacity = '0.5';
+                }
+                
+                fetch('/api/coefficients')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Save the coefficients to local storage
+                        saveToLocalStorage(data);
+                        
+                        // Hide loading indicator
+                        loadingIndicator.style.display = 'none';
+                        forecastOutput.style.opacity = '1';
+                        
+                        resolve(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching coefficients:', error);
+                        
+                        // Hide loading indicator
+                        loadingIndicator.style.display = 'none';
+                        forecastOutput.style.opacity = '1';
+                        
+                        reject(error);
+                    });
+            });
+        }
+        
+        // Add event listener for the refresh button
+        refreshButton.addEventListener('click', () => {
+            fetchModelCoefficients()
                 .then(data => {
                     modelCoefficients = data;
-                    updateForecast(); // Initial calculation after data is loaded
-                    
-                    // Hide loading indicator
-                    loadingIndicator.style.display = 'none';
-                    forecastOutput.style.opacity = '1';
+                    updateForecast();
                 })
                 .catch(error => {
-                    console.error('Error fetching coefficients:', error);
-                    forecastOutput.textContent = 'Error';
-                    
-                    // Hide loading indicator
-                    loadingIndicator.style.display = 'none';
-                    forecastOutput.style.opacity = '1';
+                    forecastOutput.textContent = 'Error refreshing model';
                 });
+        });
+        
+        // Fetch data and then run the initial calculation
+        document.addEventListener('DOMContentLoaded', () => {
+            // Try to load from local storage first
+            const cachedCoefficients = loadFromLocalStorage();
+            
+            if (cachedCoefficients) {
+                // Use cached coefficients
+                modelCoefficients = cachedCoefficients;
+                updateForecast();
+            } else {
+                // Fetch from API if no cached data
+                fetchModelCoefficients()
+                    .then(data => {
+                        modelCoefficients = data;
+                        updateForecast();
+                    })
+                    .catch(error => {
+                        forecastOutput.textContent = 'Error';
+                    });
+            }
         });
 
     </script>
+    
+    <!-- Include error handling test script for testing purposes -->
+    <script src="/tests/test_frontend_error_handling.js"></script>
 
 </body>
 </html>

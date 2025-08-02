@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSTR Frontend Cache Test</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f7;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .test-button {
+            background-color: #4a6da7;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .test-button:hover {
+            background-color: #3a5d97;
+        }
+        
+        .error-button {
+            background-color: #d9534f;
+        }
+        
+        .error-button:hover {
+            background-color: #c9302c;
+        }
+        
+        .success-button {
+            background-color: #5cb85c;
+        }
+        
+        .success-button:hover {
+            background-color: #4cae4c;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            min-height: 50px;
+        }
+        
+        .log {
+            font-family: monospace;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 20px;
+            height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .success {
+            color: #5cb85c;
+        }
+        
+        .error {
+            color: #d9534f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MSTR Frontend Cache Test</h1>
+        
+        <div class="test-section">
+            <h2>Local Storage Cache Test</h2>
+            <button id="save-cache" class="test-button">Save to Cache</button>
+            <button id="load-cache" class="test-button">Load from Cache</button>
+            <button id="clear-cache" class="test-button error-button">Clear Cache</button>
+            <div id="cache-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>API Simulation</h2>
+            <button id="simulate-success" class="test-button success-button">Simulate Successful API Call</button>
+            <button id="simulate-error" class="test-button error-button">Simulate API Error</button>
+            <div id="api-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Error Handling Test</h2>
+            <button id="test-storage-error" class="test-button error-button">Test Storage Error</button>
+            <button id="test-api-timeout" class="test-button error-button">Test API Timeout</button>
+            <div id="error-result" class="result"></div>
+        </div>
+        
+        <h2>Console Log</h2>
+        <div id="log" class="log"></div>
+    </div>
+    
+    <script>
+        // --- Constants ---
+        const STORAGE_KEY_COEFFICIENTS = 'mstr_model_coefficients';
+        const STORAGE_KEY_LAST_UPDATED = 'mstr_model_last_updated';
+        
+        // --- Mock Data ---
+        const mockCoefficients = {
+            intercept: 120.5,
+            btc_coefficient: 0.0025,
+            mnav_coefficient: 1.85
+        };
+        
+        // --- DOM Elements ---
+        const cacheResult = document.getElementById('cache-result');
+        const apiResult = document.getElementById('api-result');
+        const errorResult = document.getElementById('error-result');
+        const logElement = document.getElementById('log');
+        
+        // --- Utility Functions ---
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[${type}] ${message}`);
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // --- Local Storage Functions ---
+        function saveToLocalStorage(coefficients) {
+            try {
+                // Save the coefficients
+                localStorage.setItem(STORAGE_KEY_COEFFICIENTS, JSON.stringify(coefficients));
+                
+                // Save the current timestamp
+                const now = new Date().toISOString();
+                localStorage.setItem(STORAGE_KEY_LAST_UPDATED, now);
+                
+                log(`Saved coefficients to local storage: ${JSON.stringify(coefficients)}`, 'success');
+                return { success: true, timestamp: now };
+            } catch (error) {
+                log(`Error saving to local storage: ${error.message}`, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+        
+        function loadFromLocalStorage() {
+            try {
+                // Get the saved coefficients
+                const savedCoefficients = localStorage.getItem(STORAGE_KEY_COEFFICIENTS);
+                if (!savedCoefficients) {
+                    log('No coefficients found in local storage', 'error');
+                    return { success: false, error: 'No cached data found' };
+                }
+                
+                // Get the last updated timestamp
+                const lastUpdated = localStorage.getItem(STORAGE_KEY_LAST_UPDATED);
+                
+                log(`Loaded coefficients from local storage: ${savedCoefficients}`, 'success');
+                return { 
+                    success: true, 
+                    data: JSON.parse(savedCoefficients), 
+                    timestamp: lastUpdated 
+                };
+            } catch (error) {
+                log(`Error loading from local storage: ${error.message}`, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+        
+        function clearLocalStorage() {
+            try {
+                localStorage.removeItem(STORAGE_KEY_COEFFICIENTS);
+                localStorage.removeItem(STORAGE_KEY_LAST_UPDATED);
+                log('Cleared local storage cache', 'success');
+                return { success: true };
+            } catch (error) {
+                log(`Error clearing local storage: ${error.message}`, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // --- API Simulation Functions ---
+        function simulateApiCall(shouldSucceed = true, timeout = 500) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (shouldSucceed) {
+                        log('API call successful', 'success');
+                        resolve(mockCoefficients);
+                    } else {
+                        log('API call failed', 'error');
+                        reject(new Error('Simulated API failure'));
+                    }
+                }, timeout);
+            });
+        }
+        
+        // --- Error Handling Test Functions ---
+        function testStorageError() {
+            try {
+                // Store the original localStorage methods
+                const originalSetItem = Storage.prototype.setItem;
+                
+                // Override localStorage methods to throw errors
+                Storage.prototype.setItem = function() {
+                    throw new Error('Simulated localStorage failure');
+                };
+                
+                // Try to save to localStorage
+                const result = saveToLocalStorage(mockCoefficients);
+                
+                // Restore the original localStorage methods
+                Storage.prototype.setItem = originalSetItem;
+                
+                return result;
+            } catch (error) {
+                log(`Unexpected error in storage error test: ${error.message}`, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+        
+        function testApiTimeout() {
+            log('Testing API timeout (5 seconds)...', 'info');
+            apiResult.textContent = 'Loading...';
+            
+            return simulateApiCall(true, 5000)
+                .then(data => {
+                    log('API call completed after timeout', 'success');
+                    return { success: true, data };
+                })
+                .catch(error => {
+                    log(`API timeout test error: ${error.message}`, 'error');
+                    return { success: false, error: error.message };
+                });
+        }
+        
+        // --- Event Listeners ---
+        document.getElementById('save-cache').addEventListener('click', () => {
+            const result = saveToLocalStorage(mockCoefficients);
+            if (result.success) {
+                cacheResult.textContent = `Saved to cache! Last updated: ${formatDate(result.timestamp)}`;
+            } else {
+                cacheResult.textContent = `Error: ${result.error}`;
+            }
+        });
+        
+        document.getElementById('load-cache').addEventListener('click', () => {
+            const result = loadFromLocalStorage();
+            if (result.success) {
+                cacheResult.textContent = `Loaded from cache: ${JSON.stringify(result.data)}\nLast updated: ${formatDate(result.timestamp)}`;
+            } else {
+                cacheResult.textContent = `Error: ${result.error}`;
+            }
+        });
+        
+        document.getElementById('clear-cache').addEventListener('click', () => {
+            const result = clearLocalStorage();
+            if (result.success) {
+                cacheResult.textContent = 'Cache cleared successfully!';
+            } else {
+                cacheResult.textContent = `Error: ${result.error}`;
+            }
+        });
+        
+        document.getElementById('simulate-success').addEventListener('click', () => {
+            apiResult.textContent = 'Loading...';
+            simulateApiCall(true)
+                .then(data => {
+                    apiResult.textContent = `API Success: ${JSON.stringify(data)}`;
+                    // Also save to cache
+                    saveToLocalStorage(data);
+                })
+                .catch(error => {
+                    apiResult.textContent = `Error: ${error.message}`;
+                });
+        });
+        
+        document.getElementById('simulate-error').addEventListener('click', () => {
+            apiResult.textContent = 'Loading...';
+            simulateApiCall(false)
+                .then(data => {
+                    apiResult.textContent = `API Success: ${JSON.stringify(data)}`;
+                })
+                .catch(error => {
+                    apiResult.textContent = `Error: ${error.message}`;
+                });
+        });
+        
+        document.getElementById('test-storage-error').addEventListener('click', () => {
+            const result = testStorageError();
+            errorResult.textContent = result.success ? 
+                'Storage error handling worked correctly!' : 
+                `Error handling test failed: ${result.error}`;
+        });
+        
+        document.getElementById('test-api-timeout').addEventListener('click', () => {
+            errorResult.textContent = 'Testing API timeout (5 seconds)...';
+            testApiTimeout()
+                .then(result => {
+                    errorResult.textContent = result.success ? 
+                        'API timeout test completed successfully!' : 
+                        `API timeout test failed: ${result.error}`;
+                });
+        });
+        
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Test page loaded', 'info');
+            
+            // Check if there's already cached data
+            const cachedData = loadFromLocalStorage();
+            if (cachedData.success) {
+                cacheResult.textContent = `Found cached data: ${JSON.stringify(cachedData.data)}\nLast updated: ${formatDate(cachedData.timestamp)}`;
+            } else {
+                cacheResult.textContent = 'No cached data found';
+            }
+        });
+    </script>
+</body>
+</html>

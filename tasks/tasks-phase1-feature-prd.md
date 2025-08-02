@@ -44,8 +44,11 @@
   - [x] 4.5 Add a loading state while fetching data
 
 - [ ] 5.0 **Parent Task:** Testing & Validation
-  - [ ] 5.1 Create unit tests for the `/api/coefficients` endpoint
-  - [ ] 5.2 Test the frontend-backend integration
-  - [ ] 5.3 Verify that the calculator correctly uses the model coefficients
-  - [ ] 5.4 Test error handling scenarios
-  - [ ] 5.5 Document any issues or edge cases discovered during testing
+  - [x] 5.1 Create unit tests for the `/api/coefficients` endpoint
+  - [x] 5.2 Test the frontend-backend integration
+  - [x] 5.3 Verify that the calculator correctly uses the model coefficients
+  - [x] 5.4 Implement frontend caching of model coefficients after initial fetch
+  - [x] 5.5 Add a "Refresh Model" button to manually update coefficients from backend
+  - [x] 5.6 Display last model update timestamp in the UI
+  - [x] 5.7 Test error handling scenarios
+  - [x] 5.8 Document any issues or edge cases discovered during testing

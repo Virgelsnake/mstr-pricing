@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSTR Calculation Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+        }
+        .test-case {
+            background-color: #f5f5f5;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .result {
+            font-weight: bold;
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <h1>MSTR Price Calculation Test</h1>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        // Model coefficients from the database
+        const modelCoefficients = {
+            intercept: 120.5,
+            btc_coeff: 0.0025,
+            mnav_coeff: 1.85
+        };
+        
+        // Test cases
+        const testCases = [
+            { btcPrice: 155600, mNav: 2.99, description: "Current values from UI" },
+            { btcPrice: 115000, mNav: 1.78, description: "Initial values from UI" },
+            { btcPrice: 100000, mNav: 2.0, description: "Test case 1" },
+            { btcPrice: 200000, mNav: 3.0, description: "Test case 2" },
+            { btcPrice: 300000, mNav: 5.0, description: "Test case 3" }
+        ];
+        
+        // Calculate function
+        function calculateMSTRPrice(btcPrice, mNav, coefficients) {
+            const forecastedPrice = coefficients.intercept + 
+                                   (btcPrice * coefficients.btc_coeff) + 
+                                   (mNav * coefficients.mnav_coeff);
+            return Math.max(0, forecastedPrice);
+        }
+        
+        // Run tests and display results
+        const resultsContainer = document.getElementById('test-results');
+        
+        testCases.forEach(test => {
+            const result = calculateMSTRPrice(test.btcPrice, test.mNav, modelCoefficients);
+            
+            const testDiv = document.createElement('div');
+            testDiv.className = 'test-case';
+            
+            testDiv.innerHTML = `
+                <h3>${test.description}</h3>
+                <p>BTC Price: $${test.btcPrice.toLocaleString()}</p>
+                <p>M-NAV: ${test.mNav}</p>
+                <p>Calculation: ${modelCoefficients.intercept} + (${test.btcPrice} × ${modelCoefficients.btc_coeff}) + (${test.mNav} × ${modelCoefficients.mnav_coeff})</p>
+                <p>= ${modelCoefficients.intercept} + ${test.btcPrice * modelCoefficients.btc_coeff} + ${test.mNav * modelCoefficients.mnav_coeff}</p>
+                <p class="result">Forecasted MSTR Price: $${result.toFixed(2)}</p>
+            `;
+            
+            resultsContainer.appendChild(testDiv);
+        });
+        
+        // Log the coefficients to console
+        console.log('Model Coefficients:', modelCoefficients);
+    </script>
+</body>
+</html>
