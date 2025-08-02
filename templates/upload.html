@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSTR Calculator - Admin Upload</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Upload New Market Data</h1>
+            <p>Manually upload a CSV file to retrain the forecasting model.</p>
+        </header>
+        <main>
+            <section class="admin-section">
+                <h2>Admin Upload</h2>
+                <form id="upload-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="file-input">Select CSV File:</label>
+                        <input type="file" id="file-input" name="file" accept=".csv" required>
+                    </div>
+                    <button type="submit">Upload and Retrain</button>
+                </form>
+                <div id="status-messages">
+                    <!-- Success or error messages will be displayed here -->
+                </div>
+            </section>
+        </main>
+        <footer>
+            <p>&copy; 2025 MSTR Price Forecaster. All rights reserved.</p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+</body>
+</html>

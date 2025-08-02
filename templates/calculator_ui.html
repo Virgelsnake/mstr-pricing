@@ -4,524 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSTR Stock Price Forecaster</title>
-    <style>
-        /* General Styling */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #121212; /* Dark background */
-            color: #ffffff;
-        }
-        /* Calculator Container */
-        .calculator {
-            background-color: #1A1A1A;
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-            border: 1px solid #333;
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-        }
-        h1 {
-            color: #ffffff;
-            margin-bottom: 25px;
-            font-size: 1.8rem;
-        }
-        /* Input Control Group Styling */
-        .input-group {
-            margin-bottom: 25px;
-            text-align: left;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #A0A0A0; /* Light grey for labels */
-        }
-        .input-group span {
-            font-weight: 500;
-            color: #F7931A; /* Bitcoin Orange */
-            background-color: #2C2C2C;
-            padding: 3px 9px;
-            border-radius: 6px;
-        }
-        /* Slider Styling - Enhanced for better drag functionality */
-        input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 8px;
-            background: #444444; /* Grey track */
-            border-radius: 5px;
-            outline: none;
-            opacity: 0.9;
-            transition: opacity .2s, background-color .2s ease;
-            margin-top: 5px;
-            cursor: pointer; /* Explicit cursor pointer */
-            touch-action: none; /* Prevent scrolling on touch */
-        }
-        input[type="range"]:hover {
-            opacity: 1;
-            background: #555555; /* Slightly lighter on hover for feedback */
-        }
-        input[type="range"].dragging {
-            background: #666666; /* Even lighter when dragging */
-            opacity: 1;
-        }
-        /* WebKit (Chrome, Safari, Edge) */
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 22px;
-            height: 22px;
-            background: #F7931A; /* Bitcoin Orange */
-            cursor: grab; /* Grab cursor for dragging */
-            border-radius: 50%;
-            border: 2px solid #FFFFFF;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            /* Improve draggability */
-            margin-top: -7px; /* Centers the thumb on the track */
-            transition: all 0.15s ease;
-            transform-origin: center;
-        }
-        input[type="range"]:active::-webkit-slider-thumb,
-        input[type="range"].dragging::-webkit-slider-thumb {
-            cursor: grabbing; /* Change cursor while actively dragging */
-            background: #FF8C00; /* Slightly different color when active */
-            transform: scale(1.1); /* Slightly larger when dragging */
-            box-shadow: 0 3px 7px rgba(0,0,0,0.6);
-        }
-        /* Firefox */
-        input[type="range"]::-moz-range-thumb {
-            width: 22px;
-            height: 22px;
-            background: #F7931A; /* Bitcoin Orange */
-            cursor: grab; /* Grab cursor for dragging */
-            border-radius: 50%;
-            border: 2px solid #FFFFFF;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            transition: all 0.15s ease;
-            transform-origin: center;
-        }
-        input[type="range"]:active::-moz-range-thumb,
-        input[type="range"].dragging::-moz-range-thumb {
-            cursor: grabbing; /* Change cursor while actively dragging */
-            background: #FF8C00; /* Slightly different color when active */
-            transform: scale(1.1); /* Slightly larger when dragging */
-            box-shadow: 0 3px 7px rgba(0,0,0,0.6);
-        }
-        /* Internet Explorer and Edge */
-        input[type="range"]::-ms-thumb {
-            width: 22px;
-            height: 22px;
-            background: #F7931A; /* Bitcoin Orange */
-            cursor: grab;
-            border-radius: 50%;
-            border: 2px solid #FFFFFF;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            transition: all 0.15s ease;
-        }
-        input[type="range"]:active::-ms-thumb,
-        input[type="range"].dragging::-ms-thumb {
-            background: #FF8C00; /* Slightly different color when active */
-            transform: scale(1.1); /* Slightly larger when dragging */
-            box-shadow: 0 3px 7px rgba(0,0,0,0.6);
-        }
-        input[type="range"]::-ms-track {
-            width: 100%;
-            height: 8px;
-            background: transparent;
-            border-color: transparent;
-            color: transparent;
-        }
-        /* Forecast Display */
-        .forecast-display {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #212121;
-            border-radius: 8px;
-            border-top: 3px solid #F7931A;
-            position: relative;
-        }
-        
-        /* Loading Indicator */
-        #loading-indicator {
-            color: #F7931A;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            font-style: italic;
-            opacity: 0.8;
-        }
-        
-        /* Refresh Button and Last Updated */
-        .refresh-container {
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        .refresh-button {
-            background-color: #4a6da7;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-        
-        .refresh-button:hover {
-            background-color: #3a5d97;
-        }
-        
-        .last-updated {
-            font-size: 12px;
-            color: #888;
-            margin-top: 8px;
-        }
-        .forecast-display h2 {
-            margin: 0 0 10px 0;
-            font-size: 1.1rem;
-            color: #A0A0A0;
-            font-weight: 600;
-        }
-        .forecast-display #forecast-output {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #F7931A; /* Bitcoin Orange */
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
 
-    <div class="calculator">
-        <h1>MSTR Stock Price Forecaster</h1>
+    <div class="container">
+        <header>
+            <h1>MSTR Stock Price Forecaster</h1>
+            <p>A data-driven price prediction tool and model trainer.</p>
+        </header>
 
-        <!-- BTC Price Slider (Step updated to 100) -->
-        <div class="input-group">
-            <label for="btc-price">BTC Price: <span id="btc-price-value">$115,000</span></label>
-            <input type="range" id="btc-price" min="10000" max="500000" step="100" value="115000">
-        </div>
+        <main>
+            <!-- Calculator Section -->
+            <section class="calculator-section">
+                <h2>Price Calculator</h2>
+                <div class="input-group">
+                    <label for="btc-price">BTC Price: <span id="btc-price-value">$115,000</span></label>
+                    <input type="range" id="btc-price" min="10000" max="500000" step="100" value="115000">
+                </div>
+                <div class="input-group">
+                    <label for="m-nav">M-NAV: <span id="m-nav-value">1.78</span></label>
+                    <input type="range" id="m-nav" min="0.5" max="25" step="0.01" value="1.78">
+                </div>
+                <div class="forecast-display">
+                    <h2>Forecasted MSTR Stock Price</h2>
+                    <div id="forecast-output">$0.00</div>
+                    <div id="loading-indicator" style="display: none;">Loading...</div>
+                </div>
+                <div class="refresh-container">
+                    <button id="refresh-model" class="refresh-button">Refresh Model</button>
+                    <div id="last-updated" class="last-updated">Last updated: Never</div>
+                </div>
+            </section>
 
-        <!-- M-NAV Slider (Step updated to 0.01) -->
-        <div class="input-group">
-            <label for="m-nav">M-NAV: <span id="m-nav-value">1.78</span></label>
-            <input type="range" id="m-nav" min="0.5" max="25" step="0.01" value="1.78">
-        </div>
+            <!-- Divider -->
+            <hr class="section-divider">
 
-        <!-- Forecasted Price Output -->
-        <div class="forecast-display">
-            <h2>Forecasted MSTR Stock Price</h2>
-            <div id="forecast-output">$0.00</div>
-            <div id="loading-indicator" style="display: none;">Loading...</div>
-        </div>
-        
-        <!-- Refresh Model Button and Last Updated -->
-        <div class="refresh-container">
-            <button id="refresh-model" class="refresh-button">Refresh Model</button>
-            <div id="last-updated" class="last-updated">Last updated: Never</div>
-        </div>
+            <!-- Admin Section for File Upload -->
+            <section class="admin-section">
+                <h2>Admin: Retrain Model</h2>
+                <form id="upload-form" enctype="multipart/form-data">
+                    <label for="csv-file">Upload new training data (CSV format)</label>
+                    <input type="file" id="csv-file" name="csv-file" accept=".csv" required>
+                    <button type="submit" id="upload-button">Upload CSV</button>
+                </form>
+                <div id="status-messages" style="display: none;"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 MSTR Price Forecaster. All rights reserved.</p>
+        </footer>
     </div>
 
-    <script>
-        // --- Get references to UI elements ---
-        const btcSlider = document.getElementById('btc-price');
-        const btcValueDisplay = document.getElementById('btc-price-value');
-        const mNavSlider = document.getElementById('m-nav');
-        const mNavValueDisplay = document.getElementById('m-nav-value');
-        const forecastOutput = document.getElementById('forecast-output');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const refreshButton = document.getElementById('refresh-model');
-        const lastUpdatedDisplay = document.getElementById('last-updated');
-
-        // --- Model coefficients will be fetched from the API or loaded from cache ---
-        let modelCoefficients = {};
-        
-        // Local storage keys
-        const STORAGE_KEY_COEFFICIENTS = 'mstr_model_coefficients';
-        const STORAGE_KEY_LAST_UPDATED = 'mstr_model_last_updated';
-
-        /**
-         * Updates the forecasted MSTR price based on the current slider values.
-         */
-        function updateForecast() {
-            // Update the display for the current slider values
-            const btcPrice = parseFloat(btcSlider.value);
-            const mNav = parseFloat(mNavSlider.value);
-            btcValueDisplay.textContent = `$${btcPrice.toLocaleString()}`;
-            mNavValueDisplay.textContent = mNav.toFixed(2);
-
-            // Calculate forecast only if coefficients are loaded
-            if (modelCoefficients.intercept) {
-                // Log the values for debugging
-                console.log('BTC Price:', btcPrice);
-                console.log('M-NAV:', mNav);
-                console.log('Intercept:', modelCoefficients.intercept);
-                console.log('BTC Coefficient:', modelCoefficients.btc_coeff);
-                console.log('M-NAV Coefficient:', modelCoefficients.mnav_coeff);
-                
-                const forecastedPrice = modelCoefficients.intercept + (btcPrice * modelCoefficients.btc_coeff) + (mNav * modelCoefficients.mnav_coeff);
-                console.log('Calculated Price:', forecastedPrice);
-                
-                const finalPrice = Math.max(0, forecastedPrice);
-                forecastOutput.textContent = `$${finalPrice.toFixed(2)}`;
-            }
-        }
-
-        // --- Event Listeners for slider interaction ---
-        // Enhanced for smoother dragging and touch support
-        
-        const sliders = [btcSlider, mNavSlider];
-        
-        sliders.forEach(slider => {
-            // Basic input event for immediate value changes
-            slider.addEventListener('input', updateForecast);
-            
-            // Handle changes after releasing the slider (for browsers that need it)
-            slider.addEventListener('change', updateForecast);
-            
-            // Track if we're currently dragging
-            let isDragging = false;
-            let lastUpdateTime = 0;
-            const updateThrottle = 16; // ~60fps for smooth updates
-            
-            // Shared handler for both mouse and touch events
-            const handleDragStart = function(e) {
-                // Prevent any default actions
-                e.preventDefault();
-                
-                // Add visual feedback that slider is being dragged
-                slider.classList.add('dragging');
-                isDragging = true;
-                
-                // Initial forecast update
-                updateForecast();
-                
-                // Get pointer position (works for both mouse and touch)
-                const getPointerPosition = function(event) {
-                    // For touch events, use the first touch point
-                    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-                    return clientX;
-                };
-                
-                // Handler for pointer movement
-                const handleDragMove = function(event) {
-                    if (!isDragging) return;
-                    
-                    // Throttle updates for better performance
-                    const now = Date.now();
-                    if (now - lastUpdateTime < updateThrottle) return;
-                    lastUpdateTime = now;
-                    
-                    // Calculate slider position
-                    const rect = slider.getBoundingClientRect();
-                    const clientX = getPointerPosition(event);
-                    
-                    // Ensure pointer is within slider bounds horizontally
-                    if (clientX < rect.left || clientX > rect.right) return;
-                    
-                    const position = (clientX - rect.left) / rect.width;
-                    
-                    // Calculate value within slider range
-                    const min = parseFloat(slider.min);
-                    const max = parseFloat(slider.max);
-                    const step = parseFloat(slider.step) || 1;
-                    
-                    // Calculate the value based on position with smooth interpolation
-                    let newValue = min + position * (max - min);
-                    
-                    // Apply step constraints
-                    newValue = Math.round(newValue / step) * step;
-                    
-                    // Ensure value is within bounds
-                    newValue = Math.max(min, Math.min(max, newValue));
-                    
-                    // Update slider value with requestAnimationFrame for smoother updates
-                    if (slider.value != newValue) {
-                        requestAnimationFrame(() => {
-                            slider.value = newValue;
-                            updateForecast();
-                        });
-                    }
-                };
-                
-                // Handler for ending the drag operation
-                const handleDragEnd = function() {
-                    if (!isDragging) return;
-                    
-                    isDragging = false;
-                    slider.classList.remove('dragging');
-                    
-                    // Remove all event listeners
-                    document.removeEventListener('mousemove', handleDragMove);
-                    document.removeEventListener('touchmove', handleDragMove);
-                    document.removeEventListener('mouseup', handleDragEnd);
-                    document.removeEventListener('touchend', handleDragEnd);
-                    document.removeEventListener('touchcancel', handleDragEnd);
-                };
-                
-                // Add all necessary event listeners
-                document.addEventListener('mousemove', handleDragMove, { passive: false });
-                document.addEventListener('touchmove', handleDragMove, { passive: false });
-                document.addEventListener('mouseup', handleDragEnd);
-                document.addEventListener('touchend', handleDragEnd);
-                document.addEventListener('touchcancel', handleDragEnd);
-            };
-            
-            // Add event listeners for both mouse and touch events
-            slider.addEventListener('mousedown', handleDragStart);
-            slider.addEventListener('touchstart', handleDragStart, { passive: false });
-        });
-
-        /**
-         * Formats a date string in a user-friendly format
-         */
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-        
-        /**
-         * Saves model coefficients to local storage
-         */
-        function saveToLocalStorage(coefficients) {
-            try {
-                // Save the coefficients
-                localStorage.setItem(STORAGE_KEY_COEFFICIENTS, JSON.stringify(coefficients));
-                
-                // Save the current timestamp
-                const now = new Date().toISOString();
-                localStorage.setItem(STORAGE_KEY_LAST_UPDATED, now);
-                
-                // Update the last updated display
-                updateLastUpdatedDisplay(now);
-                
-                return true;
-            } catch (error) {
-                console.error('Error saving to local storage:', error);
-                return false;
-            }
-        }
-        
-        /**
-         * Loads model coefficients from local storage
-         */
-        function loadFromLocalStorage() {
-            try {
-                // Get the saved coefficients
-                const savedCoefficients = localStorage.getItem(STORAGE_KEY_COEFFICIENTS);
-                if (!savedCoefficients) return null;
-                
-                // Get the last updated timestamp
-                const lastUpdated = localStorage.getItem(STORAGE_KEY_LAST_UPDATED);
-                
-                // Update the last updated display
-                if (lastUpdated) {
-                    updateLastUpdatedDisplay(lastUpdated);
-                }
-                
-                return JSON.parse(savedCoefficients);
-            } catch (error) {
-                console.error('Error loading from local storage:', error);
-                return null;
-            }
-        }
-        
-        /**
-         * Updates the last updated timestamp display
-         */
-        function updateLastUpdatedDisplay(timestamp) {
-            if (timestamp) {
-                lastUpdatedDisplay.textContent = `Last updated: ${formatDate(timestamp)}`;
-            } else {
-                lastUpdatedDisplay.textContent = 'Last updated: Never';
-            }
-        }
-        
-        /**
-         * Fetches the latest model coefficients from the API
-         */
-        function fetchModelCoefficients(showLoading = true) {
-            return new Promise((resolve, reject) => {
-                // Show loading indicator if requested
-                if (showLoading) {
-                    loadingIndicator.style.display = 'block';
-                    forecastOutput.style.opacity = '0.5';
-                }
-                
-                fetch('/api/coefficients')
-                    .then(response => response.json())
-                    .then(data => {
-                        // Save the coefficients to local storage
-                        saveToLocalStorage(data);
-                        
-                        // Hide loading indicator
-                        loadingIndicator.style.display = 'none';
-                        forecastOutput.style.opacity = '1';
-                        
-                        resolve(data);
-                    })
-                    .catch(error => {
-                        console.error('Error fetching coefficients:', error);
-                        
-                        // Hide loading indicator
-                        loadingIndicator.style.display = 'none';
-                        forecastOutput.style.opacity = '1';
-                        
-                        reject(error);
-                    });
-            });
-        }
-        
-        // Add event listener for the refresh button
-        refreshButton.addEventListener('click', () => {
-            fetchModelCoefficients()
-                .then(data => {
-                    modelCoefficients = data;
-                    updateForecast();
-                })
-                .catch(error => {
-                    forecastOutput.textContent = 'Error refreshing model';
-                });
-        });
-        
-        // Fetch data and then run the initial calculation
-        document.addEventListener('DOMContentLoaded', () => {
-            // Try to load from local storage first
-            const cachedCoefficients = loadFromLocalStorage();
-            
-            if (cachedCoefficients) {
-                // Use cached coefficients
-                modelCoefficients = cachedCoefficients;
-                updateForecast();
-            } else {
-                // Fetch from API if no cached data
-                fetchModelCoefficients()
-                    .then(data => {
-                        modelCoefficients = data;
-                        updateForecast();
-                    })
-                    .catch(error => {
-                        forecastOutput.textContent = 'Error';
-                    });
-            }
-        });
-
-    </script>
-    
-    <!-- Include error handling test script for testing purposes -->
-    <script src="/tests/test_frontend_error_handling.js"></script>
+    <!-- External JavaScript files -->
+    <script src="{{ url_for('static', filename='js/calculator.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
 
 </body>
 </html>

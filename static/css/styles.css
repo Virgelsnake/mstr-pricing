@@ -1,0 +1,280 @@
+/* General Styling */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Vertically center the container */
+    min-height: 100vh;
+    margin: 0;
+    padding: 40px 20px;
+    background-color: #121212; /* Dark background */
+    color: #ffffff;
+}
+
+/* Main Container */
+.container {
+    background-color: #1A1A1A;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    border: 1px solid #333;
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+header h1 {
+    color: #ffffff;
+    margin-bottom: 10px;
+    font-size: 2rem;
+}
+
+header p {
+    color: #A0A0A0;
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+/* Section Styling */
+.calculator-section, .admin-section {
+    margin-bottom: 20px;
+}
+
+.calculator-section h2, .admin-section h2 {
+    color: #E0E0E0;
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+/* Input Control Group Styling */
+.input-group, .form-group {
+    margin-bottom: 25px;
+    text-align: left;
+    width: 100%;
+}
+
+.input-group label, .form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #A0A0A0;
+}
+
+.input-group span {
+    font-weight: 500;
+    color: #F7931A; /* Bitcoin Orange */
+    background-color: #2C2C2C;
+    padding: 3px 9px;
+    border-radius: 6px;
+}
+
+/* Slider Styling */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #444444;
+    border-radius: 5px;
+    outline: none;
+    opacity: 0.9;
+    transition: opacity .2s, background-color .2s ease;
+    margin-top: 5px;
+    cursor: pointer;
+    touch-action: none;
+}
+
+input[type="range"]:hover {
+    opacity: 1;
+    background: #555555;
+}
+
+input[type="range"].dragging {
+    background: #666666;
+    opacity: 1;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    background: #F7931A;
+    cursor: grab;
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    margin-top: -7px;
+    transition: all 0.15s ease;
+}
+
+input[type="range"]:active::-webkit-slider-thumb,
+input[type="range"].dragging::-webkit-slider-thumb {
+    cursor: grabbing;
+    background: #FF8C00;
+    transform: scale(1.1);
+    box-shadow: 0 3px 7px rgba(0,0,0,0.6);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    background: #F7931A;
+    cursor: grab;
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    transition: all 0.15s ease;
+}
+
+input[type="range"]:active::-moz-range-thumb,
+input[type="range"].dragging::-moz-range-thumb {
+    cursor: grabbing;
+    background: #FF8C00;
+    transform: scale(1.1);
+    box-shadow: 0 3px 7px rgba(0,0,0,0.6);
+}
+
+/* Forecast Display */
+.forecast-display {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #212121;
+    border-radius: 8px;
+    border-top: 3px solid #F7931A;
+}
+
+.forecast-display h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+    color: #A0A0A0;
+    font-weight: 600;
+    border: none;
+}
+
+.forecast-display #forecast-output {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #F7931A;
+}
+
+#loading-indicator {
+    color: #F7931A;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    font-style: italic;
+}
+
+/* Refresh Button and Last Updated */
+.refresh-container {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.last-updated {
+    font-size: 12px;
+    color: #888;
+    margin-top: 8px;
+}
+
+/* Section Divider */
+.section-divider {
+    border: 0;
+    height: 1px;
+    background-color: #444;
+    margin: 40px 0;
+}
+
+/* General Button Styling */
+button {
+    background-color: #F7931A; /* Bitcoin Orange */
+    color: #ffffff;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.1s;
+    display: inline-block;
+    width: auto;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #e6830a;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* Specific override for refresh button */
+.refresh-button {
+    background-color: #4a6da7;
+}
+
+.refresh-button:hover {
+    background-color: #3a5d97;
+}
+
+/* File Input Styling */
+input[type="file"] {
+    color: #A0A0A0;
+    background-color: #2C2C2C;
+    border: 1px dashed #555;
+    border-radius: 6px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+input[type="file"]::file-selector-button {
+    background-color: #F7931A;
+    color: #ffffff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background-color: #e6830a;
+}
+
+/* Status Messages */
+#status-messages {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 6px;
+    font-weight: 500;
+    display: none; /* Hidden by default */
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#status-messages.success {
+    background-color: #28a745; /* Green for success */
+    color: #ffffff;
+    display: block;
+}
+
+#status-messages.error {
+    background-color: #dc3545; /* Red for error */
+    color: #ffffff;
+    display: block;
+}
+
+/* Footer Styling */
+footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #444;
+    font-size: 0.9rem;
+    color: #A0A0A0;
+}

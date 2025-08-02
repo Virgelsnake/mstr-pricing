@@ -1,74 +1,63 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const form = document.querySelector('form');
-    const resultDiv = document.getElementById('result');
-    const statusDiv = document.getElementById('status');
-    const loadingDiv = document.getElementById('loading');
+    const uploadForm = document.getElementById('upload-form');
+    const csvFileInput = document.getElementById('csv-file');
+    const statusMessages = document.getElementById('status-messages');
+    const uploadButton = document.getElementById('upload-button');
 
-    if (form) {
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            console.log('Form submission intercepted.');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
 
-            const formData = new FormData(form);
-            const fileInput = document.querySelector('input[type="file"]');
-            
-            if (!fileInput.files || fileInput.files.length === 0) {
-                statusDiv.textContent = 'Please select a file to upload.';
-                statusDiv.style.color = 'red';
+            const file = csvFileInput.files[0];
+            if (!file) {
+                displayMessage('Please select a file to upload.', 'error');
                 return;
             }
 
-            loadingDiv.style.display = 'block';
-            statusDiv.textContent = 'Uploading and processing...';
-            resultDiv.innerHTML = '';
+            // Disable button and show loading state
+            uploadButton.disabled = true;
+            uploadButton.textContent = 'Uploading...';
+
+            const formData = new FormData();
+            formData.append('csv-file', file);
 
             fetch('/upload', {
                 method: 'POST',
                 body: formData
             })
             .then(response => {
+                // Check if response is ok, otherwise parse error from JSON
                 if (!response.ok) {
-                    // Try to parse error from JSON body, otherwise use statusText
-                    return response.json().then(err => { 
-                        throw new Error(err.error || response.statusText); 
-                    }).catch(() => {
-                        throw new Error(response.statusText);
+                    return response.json().then(err => {
+                        // Use the server-provided error message, or a default one
+                        throw new Error(err.error || 'An unknown server error occurred.');
                     });
                 }
                 return response.json();
             })
             .then(data => {
-                loadingDiv.style.display = 'none';
-                console.log('Success:', data);
-                if (data.error) {
-                    statusDiv.textContent = 'Error: ' + data.error;
-                    statusDiv.style.color = 'red';
-                } else {
-                    statusDiv.textContent = 'Calculation successful!';
-                    statusDiv.style.color = 'green';
-                    
-                    let table = '<table><thead><tr>';
-                    data.headers.forEach(header => {
-                        table += `<th>${header}</th>`;
-                    });
-                    table += '</tr></thead><tbody>';
-                    data.results.forEach(row => {
-                        table += '<tr>';
-                        row.forEach(cell => {
-                            table += `<td>${cell}</td>`;
-                        });
-                        table += '</tr>';
-                    });
-                    table += '</tbody></table>';
-                    resultDiv.innerHTML = table;
-                }
+                displayMessage(data.message, 'success');
+                uploadForm.reset(); // Clear the form input after successful upload
             })
             .catch(error => {
-                loadingDiv.style.display = 'none';
-                console.error('Error:', error);
-                statusDiv.textContent = 'An error occurred: ' + error.message;
-                statusDiv.style.color = 'red';
+                // Display any error that occurred during fetch or processing
+                displayMessage(`Error: ${error.message}`, 'error');
+            })
+            .finally(() => {
+                // Always re-enable the button and restore its text
+                uploadButton.disabled = false;
+                uploadButton.textContent = 'Upload CSV';
             });
         });
+    }
+
+    function displayMessage(message, type) {
+        if (statusMessages) {
+            statusMessages.textContent = message;
+            // Reset classes and apply the new type for styling (e.g., success, error)
+            statusMessages.className = 'status-messages'; 
+            statusMessages.classList.add(type);
+            statusMessages.style.display = 'block';
+        }
     }
 });
